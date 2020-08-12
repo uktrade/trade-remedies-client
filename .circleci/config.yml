@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  python_code_style:
+  code_quality:
     docker:
       - image: circleci/python:3.6.6
     steps:
@@ -34,4 +34,4 @@ workflows:
   version: 2
   run_tests:
     jobs:
-      - python_code_style
+      - code_quality
