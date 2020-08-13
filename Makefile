@@ -20,7 +20,6 @@ build:
 		mkdir -p dist
 		python setup.py sdist
 
-
 local_deploy:
 		rm dist/*.tar.gz
 		python setup.py sdist
@@ -28,13 +27,11 @@ local_deploy:
 		cp dist/* ../trade-remedies-caseworker/trade_remedies_client/
 		echo "Please rebuild public and caseworker containers to update the client within the containers"
 
-
 flake8:
 		docker run -it --rm -v requirements:/usr/local -v "$(CURDIR):/app" python sh -c "cd /app && pip install -r requirements-dev.txt && flake8 --count" 
 
 black:
 		docker run -it --rm -v requirements:/usr/local -v "$(CURDIR):/app" python sh -c "cd /app && pip install -r requirements-dev.txt && black trade_remedies_client --check"
-
 
 deploy:
 		rm dist/*.tar.gz
