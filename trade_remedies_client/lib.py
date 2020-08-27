@@ -457,6 +457,19 @@ def issue_documents_to_case(self, case_id, document_ids, name=None, submission_t
     return response
 
 
+def set_submission_document_state(
+    self, case_id, submission_id, document_id, status, block_from_public_file, block_reason
+):
+    _url = f"/case/{case_id}/submission/{submission_id}/document/{document_id}/status/"
+    params = {
+        "status": status,
+        "block_from_public_file": block_from_public_file,
+        "block_reason": block_reason,
+    }
+    response = self.post(_url, data=params)
+    return response
+
+
 def set_submission_document_status(self, case_id, submission_id, document_id, status):
     """
     Set the status of a submission document to sufficient or deficient
