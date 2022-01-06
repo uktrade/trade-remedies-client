@@ -25,23 +25,13 @@ def pluck(_dict, attrs):
     """
     return {key: _dict[key] for key in attrs if key in _dict}
 
-
 ######################################################
+
+# GENERAL ############################################
 
 
 def health_check(self):
     return self.get_one("/health/")
-
-
-def get_application_state(self, organisation_id, case_id):
-    """
-    Return the state structure of a case
-    """
-    if organisation_id and case_id:
-        state = self.get_one(f"/case/{case_id}/organisation/{organisation_id}/state/")
-    else:
-        state = self.get_one(f"/case/state/")
-    return state
 
 
 def get_case(self, case_id, organisation_id=None, fields=None):
@@ -58,7 +48,7 @@ def get_case(self, case_id, organisation_id=None, fields=None):
 
 def get_cases(self, archived=False, all_cases=False, new_cases=False, fields=None):
     """
-    Return all cases, archived cases or new cases. 
+    Return all cases, archived cases or new cases.
     """
     cases = self.get_many(
         "/cases/",
@@ -70,20 +60,6 @@ def get_cases(self, archived=False, all_cases=False, new_cases=False, fields=Non
         },
     )
     return cases
-
-
-def set_case_data(self, case_id, data):
-    case = self.get_one(f"/cases/{case_id}/")
-    url = f"/cases/{case_id}/"
-    return self.post(url, data=data)
-
-
-def get_parties(self, organisation_id, case_id):
-    return self.get_many(f"/case/{case_id}/organisation/{organisation_id}/parties/")
-
-
-def get_case_organisations(self, case_id):
-    return self.get_many(f"/case/{case_id}/organisations/")
 
 
 def get_submissions(self, case_id, show_global=False, fields=None):
@@ -99,7 +75,7 @@ def get_submissions(self, case_id, show_global=False, fields=None):
 
 
 def get_submissions_public(
-    self, case_id, organisation_id=None, private=True, get_global=False, fields=None
+        self, case_id, organisation_id=None, private=True, get_global=False, fields=None
 ):
     params = {
         "private": "true" if private else "false",
@@ -120,16 +96,6 @@ def get_submission(self, case_id, submission_id, fields=None):
     return submission
 
 
-def get_submission_public(self, case_id, submission_id, organisation_id=None, private=True):
-    params = {"private": "true" if private else "false"}
-    if organisation_id:
-        path = f"/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/"
-    else:
-        path = f"/case/{case_id}/submission/{submission_id}/"
-    submission = self.get_one(path, params=params)
-    return submission
-
-
 def create_submission(self, case_id, organisation_id, **kwargs):
     """
     Create a new submission record for an organisation in a case
@@ -140,20 +106,6 @@ def create_submission(self, case_id, organisation_id, **kwargs):
         else f"/case/{case_id}/submissions/"
     )
     submission = self.post(path, data=kwargs)
-    return submission
-
-
-def create_submission_public(self, case_id, organisation_id, submission_type, **kwargs):
-    """
-    Create a new submission record for an organisation in a case
-    """
-    path = f"/case/{case_id}/organisation/{organisation_id}/submissions/"
-    data = {
-        "submission_type": submission_type,
-        "name": kwargs.get("name"),
-        "contact_id": kwargs.get("contact_id"),
-    }
-    submission = self.post(path, data=data)
     return submission
 
 
@@ -179,11 +131,6 @@ def update_submission(self, case_id, submission_id, **kwargs):
     return submission
 
 
-def update_submission_public(self, case_id, organisation_id, submission_id, data, **kwargs):
-    path = f"/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/"
-    return self.post(path, data=data)
-
-
 def set_submission_state(self, case_id, submission_id, state, issue=None):
     """
     set submission to given status
@@ -195,55 +142,8 @@ def set_submission_state(self, case_id, submission_id, state, issue=None):
     return self.post(path, data=data)
 
 
-def delete_submission(self, case_id, submission_id):
-    """
-    delete submission
-    """
-    return self.delete(f"/case/{case_id}/submission/{submission_id}/")
-
-
-def submission_notify(self, case_id, organisation_id, submission_id, values=None, notice_type=None):
-    notice_type = notice_type or "invite"
-    path = f"/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/notify/{notice_type}/"
-    try:
-        notify = self.post(path, data=values)
-    except APIException as httpexc:
-        notify = {"error": httpexc.detail.get("errors")}
-    except Exception as exc:
-        notify = {"error": str(exc)}
-    return notify
-
-
-def clone_submission(self, case_id, submission_id, **kwargs):
-    path = f"/case/{case_id}/submission/{submission_id}/clone/"
-    data = pluck(
-        kwargs,
-        [
-            "name",
-            "contact_id",
-            "organisation_id",
-            "due_at",
-            "time_window",
-            "description",
-            "url",
-            "deficiency_notice_params",
-        ],
-    )
-    try:
-        result = self.post(path, data=data)
-    except Exception as exc:
-        result = {"error": str(exc)}
-    return result
-
-
-def submission_type_exists_for_case(self, case_id, organisation_id, submission_type_id):
-    return self.get_one(
-        f"/case/{case_id}/organisation/{organisation_id}/submission/type/{submission_type_id}/"
-    )
-
-
 def get_submission_documents(
-    self, case_id, submission_id, request_for_organisation_id=None, all_versions=None
+        self, case_id, submission_id, request_for_organisation_id=None, all_versions=None
 ):
     """
     Return all the documents associated with a submission. Optionally request the docs FOR a
@@ -258,77 +158,17 @@ def get_submission_documents(
     return result
 
 
-def approval_notify(self, case_id, organisation_id, action, values):
-    path = f"/organisations/case/{case_id}/organisation/{organisation_id}/notify/{action}/"
-    self.post(path, data=values)
-
-
-def approve_submission(self, submission_id):
-    path = f"/organisations/submission/{submission_id}/approval/"
-    self.post(path)
-
-
-def verify_caserole(self, case_id, organisation_id, set=None):
-    path = f"/organisations/{organisation_id}/case/{case_id}/verify/"
-    self.post(path)
-
-
-def reject_organisation(self, case_id, organisation_id):
-    # Mark an organisation as fraudulent
-    path = f"/organisations/{organisation_id}/reject/"
-    self.post(path)
-
-
-def invite_contact(self, case_id, contact_id, case_role_id, values):
-    path = f"/invitations/invite/{contact_id}/to/{case_id}/as/{case_role_id}/"
-    response = self.post(path=path, data=values)
-    return response
-
-
-def get_organisation_id_by_name(self, names, case_summary=False):
-    """
-    Return all organisation ids for a set of names
-    """
-    url = f"/organisations/lookup/"
-    organisations = self.get_many(url, params={"name": names, "cases": case_summary})
-    return organisations
-
-
-def get_organisation_cases(self, organisation_id, initiated_only=True, all_cases=None, outer=None):
-    """
-    Return all cases for an organisation
-    """
-    url = f"/cases/organisation/{organisation_id}/" if organisation_id else "/cases/"
-    params = {}
-    if initiated_only is not None:
-        params["initiated"] = initiated_only
-    if all_cases is not None:
-        params["all"] = all_cases
-    if outer is not None:
-        params["outer"] = outer
-    cases = self.get_many(url, params)
-    return cases
-
-
-def delete_organisation(self, organisation_id):
-    return self.delete(f"/organisations/{organisation_id}/")
-
-
-def remove_organisation_from_case(self, case_id, organisation_id):
-    return self.delete(f"/organisations/{organisation_id}/case/{case_id}/remove/")
-
-
 def upload_document(
-    self,
-    *,
-    data,
-    file=None,
-    organisation_id=None,
-    case_id=None,
-    submission_id=None,
-    system=False,
-    document_id=None,
-    issued=False,
+        self,
+        *,
+        data,
+        file=None,
+        organisation_id=None,
+        case_id=None,
+        submission_id=None,
+        system=False,
+        document_id=None,
+        issued=False,
 ):
     data = data or {
         "name": "Uploaded from UI",
@@ -355,62 +195,6 @@ def upload_document(
     return document
 
 
-def upload_document_public(self, organisation_id, case_id, submission_id, data):
-    data = data or {
-        "name": "Uploaded from UI",
-    }
-    if submission_id:
-        path = (
-            f"/documents/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/"
-        )
-    else:
-        path = f"/documents/case/{case_id}/organisation/{organisation_id}/submission/"
-    document = self.post(path, data)
-    return document
-
-
-# attach existing document to submission
-def attach_document(
-    self, *, data, document_id, organisation_id=None, case_id=None, submission_id=None
-):
-    data = data or {"name": "Uploaded from UI"}
-    data["document_id"] = document_id
-    path = None
-    document = None
-    if case_id and organisation_id and submission_id:
-        path = (
-            f"/documents/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/"
-        )
-    elif case_id and submission_id:
-        path = f"/documents/case/{case_id}/submission/{submission_id}/"
-    elif "bundle_id" in data:
-        bundle_id = data["bundle_id"]
-        path = f"/documents/bundle/{bundle_id}/document/{document_id}/add/"
-    if path:
-        document = self.post(path, data)
-    return document
-
-
-# delete document from submission
-
-
-def detach_document(self, *, document_id, case_id, submission_id):
-    return self.delete(
-        f"/documents/case/{case_id}/submission/{submission_id}/document/{document_id}/"
-    )
-
-
-# DEPRECATED
-def get_system_documents(self, fields=None, criteria=None):
-    """
-    Return all documents not part of a case or submission
-    """
-    params = {"fields": fields, "criteria": criteria} if fields or criteria else None
-    _url = f"/documents/system/"
-    documents = self.get_many(_url, params)
-    return documents
-
-
 def get_documents(self, organisation_id, case_id, submission_id=None, filter_by=None):
     _url = f"/documents/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/"
     params = {}
@@ -429,63 +213,6 @@ def get_document(self, document_id, case_id=None, submission_id=None):
     return document
 
 
-def get_case_documents(
-    self, case_id, source="all", order_by=None, order_dir=None, submission_id=None
-):
-    _url = f"/documents/case/{case_id}/{source}/"
-    params = {}
-    if order_by:
-        params["order_by"] = order_by
-        params["order_dir"] = order_dir or "asc"
-    if submission_id:
-        params["submission_id"] = submission_id
-    documents = self.get_many(_url, params=params)
-    return documents
-
-
-def get_case_document_count(self, case_id):
-    _url = f"/documents/case/{case_id}/count/"
-    return self.get_one(_url)
-
-
-def issue_documents_to_case(self, case_id, document_ids, name=None, submission_type_id=None):
-    _url = f"/documents/case/{case_id}/issue/"
-    response = self.post(
-        _url,
-        data={"name": name, "document_ids": document_ids, "submission_type_id": submission_type_id},
-    )
-    return response
-
-
-def set_submission_document_state(
-    self, case_id, submission_id, document_id, status, block_from_public_file, block_reason
-):
-    _url = f"/case/{case_id}/submission/{submission_id}/document/{document_id}/status/"
-    params = {
-        "status": status,
-        "block_from_public_file": block_from_public_file,
-        "block_reason": block_reason,
-    }
-    response = self.post(_url, data=params)
-    return response
-
-
-def set_submission_document_status(self, case_id, submission_id, document_id, status):
-    """
-    Set the status of a submission document to sufficient or deficient
-    """
-    _url = f"/case/{case_id}/submission/{submission_id}/document/{document_id}/status/"
-    params = {"status": status}
-    response = self.post(_url, data=params)
-    return response
-
-
-def toggle_documents_confidentiality(self, case_id, document_ids):
-    _url = f"/documents/case/{case_id}/confidential/"
-    response = self.post(_url, data={"document_ids": document_ids})
-    return response
-
-
 def get_document_download_url(self, document_id, organisation_id=None, submission_id=None):
     if submission_id and organisation_id:
         _url = f"/documents/organisation/{organisation_id}/submission/{submission_id}/download/{document_id}/"
@@ -501,95 +228,6 @@ def get_document_download_stream(self, document_id, submission_id=None, organisa
     else:
         _url = f"/documents/{document_id}/download/"
     return self.get_resource(self.get_url(_url))
-
-
-def remove_document(self, organisation_id, case_id, submission_id, document_id):
-    _url = f"/documents/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/delete/{document_id}/"
-    response = self.delete(_url)
-    return response
-
-
-def get_product(self, organisation_id, case_id, product_id=None):
-    _url = f"/case/{case_id}/organisation/{organisation_id}/product/"
-    product = self.get_one(_url)
-    return product
-
-
-def submit_product_information(
-    self,
-    organisation_id,
-    case_id,
-    sector_id,
-    description,
-    product_id=None,
-    name=None,
-    hs_codes=None,
-):
-    if product_id:
-        url = f"/cases/{case_id}/organisation/{organisation_id}/product/{product_id}/"
-    else:
-        url = f"/cases/{case_id}/organisation/{organisation_id}/product/"
-    _product = self.post(
-        url,
-        data={
-            "sector_id": sector_id,
-            "description": description,
-            "product_name": name,
-            "hs_codes": hs_codes,
-        },
-    )
-    return _product
-
-
-def remove_product_hs_code(self, organisation_id, case_id, product_id, code_id):
-    _url = f"/cases/{case_id}/organisation/{organisation_id}/product/{product_id}/hscode/{code_id}/"
-    return self.delete(_url)
-
-
-def get_source_of_exports(self, organisation_id, case_id, export_source_id=None):
-    _url = f"/case/{case_id}/organisation/{organisation_id}/exportsource/"
-    return self.get_many(_url)
-
-
-def submit_source_of_exports(
-    self, organisation_id, case_id, country, num_of_companies, export_source_id=None
-):
-    if export_source_id:
-        url = f"/cases/{case_id}/organisation/{organisation_id}/exportsource/{export_source_id}/"
-    else:
-        url = f"/cases/{case_id}/organisation/{organisation_id}/exportsource/"
-    _source = self.post(url, data={"country": country, "num_of_companies": num_of_companies})
-    return _source
-
-
-def submit_source_of_exports_public(
-    self, organisation_id, case_id, sources, evidence_of_subsidy=None
-):
-    url = f"/cases/{case_id}/organisation/{organisation_id}/exportsource/"
-    _source = self.post(
-        url, data={"sources": json.dumps(sources), "evidence_of_subsidy": evidence_of_subsidy,}
-    )
-    return _source
-
-
-def set_review_flag(self, organisation_id, case_id, submission_id, review=None):
-    url = f"/cases/{case_id}/organisation/{organisation_id}/submission/{submission_id}/review/"
-    submission = self.post(url, data={"review": review})
-    return submission
-
-
-def set_review_type(self, case_id, submission_id, reference_case, review_type):
-    url = f"/cases/{case_id}/submission/{submission_id}/reviewtype/"
-    case = self.post(url, data={"reference_case": reference_case, "case_type": review_type,})
-
-
-def submit_application(self, organisation_id, case_id, submission_id, confirm=None, non_conf=None):
-    url = f"/cases/{case_id}/organisation/{organisation_id}/submission/{submission_id}/submit/"
-    submission = self.post(url, data={"confirm": confirm, "non_conf": non_conf})
-    return submission
-
-
-# TODO: Test in CW - combine cache from public
 
 
 def get_system_parameters(self, key=None, use_cache=True, editable=False):
@@ -638,29 +276,15 @@ def is_feature_flag_enabled(self, key):
     return is_enabled
 
 
-def set_system_parameter(self, key, value):
-    url = f"/core/systemparam/"
-    response = self.post(url, {"key": key, "value": value})
-    cache_key = self.md5_hash(f"SYS_PARAM_{key}")
-    self.set_cache(cache_key, response, SYSTEM_PARAMS_TTL)
-    return response
-
-
-def get_submission_status(self, case_id, submission_id):
-    url = f"/case/{case_id}/submission/{submission_id}/status/"
-    response = self.get_many(url)
-    return response
-
-
 def set_submission_status(
-    self,
-    case_id,
-    submission_id,
-    status_id,
-    stage_change_if_sufficient=None,
-    stage_change_if_deficient=None,
-    deficiency_documents=None,
-    issue=None,
+        self,
+        case_id,
+        submission_id,
+        status_id,
+        stage_change_if_sufficient=None,
+        stage_change_if_deficient=None,
+        deficiency_documents=None,
+        issue=None,
 ):
     url = f"/case/{case_id}/submission/{submission_id}/status/"
     files = None
@@ -679,11 +303,387 @@ def set_submission_status(
     return response
 
 
-def set_submission_status_public(self, case_id, submission_id, status_id=None, status_context=None):
-    url = f"/case/{case_id}/submission/{submission_id}/status/"
-    response = self.post(
-        url, {"submission_status_id": status_id, "status_context": status_context,}
+def get_all_case_enums(self, case_id=None, **kwargs):
+    path = f"/cases/enums/{case_id}/" if case_id else "/cases/enums/"
+    enums = self.get_one(path, params=kwargs)
+    return enums
+
+
+def set_organisation_case_role(self, case_id, organisation_id, role_key, params=None):
+    """
+    Set the organisation role in a case
+    """
+    path = f"/organisations/{organisation_id}/case/{case_id}/role/{role_key}/"
+    return self.post(path, params)
+
+
+def get_organisation(self, organisation_id, case_id=None):
+    if case_id:
+        path = f"/organisations/{organisation_id}/case/{case_id}/"
+    else:
+        path = f"/organisations/{organisation_id}/"
+    return self.get_one(path)
+
+
+def set_case_primary_contact(self, contact_id, organisation_id, case_id):
+    path = f"/contacts/{contact_id}/case/{case_id}/set/primary/{organisation_id}/"
+    return self.post(path)
+
+
+def update_case(self, case_id, update_spec):
+    response = self.post(f"/case/{case_id}/", data=update_spec)
+    return response
+
+
+def get_third_party_invites(self, case_id=None, submission_id=None):
+    """
+    Return all invites from a particular 3rd party submission
+    """
+    path = f"/invitations/case/{case_id}/submission/{submission_id}/"
+    return self.get_many(path)
+
+
+def get_user(self, user_id, organisation_id=None):
+    """
+    Return user info. Restrict to organisation if provided.
+    """
+    if organisation_id:
+        path = f"/team/{organisation_id}/user/{user_id}/"
+    else:
+        path = f"/user/{user_id}/"
+    response = self.get_one(path)
+    return response
+
+
+def assign_user_to_case(
+        self,
+        user_organisation_id,
+        user_id,
+        case_id,
+        representing_id=None,
+        submission_id=None,
+        primary=None,
+):
+    representing_str = f"representing/{representing_id}/" if representing_id else ""
+    if submission_id:
+        path = f"/team/{user_organisation_id}/users/assign/{user_id}/case/{case_id}/submission/{submission_id}/{representing_str}"
+    else:
+        path = (
+            f"/team/{user_organisation_id}/users/assign/{user_id}/case/{case_id}/{representing_str}"
+        )
+    params = {"primary": primary}
+    return self.post(path, data=params)
+
+
+def two_factor_request(self, delivery_type=None, user_agent=None, ip_address=None):
+    """
+    Request a 2FA code
+    """
+    path = "/auth/2fa/"
+    extra_headers = {}
+    if user_agent:
+        extra_headers["X-User-Agent"] = user_agent
+    if ip_address:
+        extra_headers["X-Forwarded-For"] = ip_address
+    if delivery_type:
+        path = f"{path}{delivery_type}/"
+    return self.get_one(path, extra_headers=extra_headers)
+
+
+def two_factor_auth(self, code, user_agent=None, ip_address=None):
+    path = "/auth/2fa/"
+    extra_headers = {}
+    if user_agent:
+        extra_headers["X-User-Agent"] = user_agent
+    if ip_address:
+        extra_headers["X-Forwarded-For"] = ip_address
+    return self.post(path, {"code": code}, extra_headers=extra_headers)
+
+
+def validate_password_reset(self, code):
+    """
+    Validate (only) a password reset code.
+    TODO: Uses settings.TRUSTED_USER_TOKEN
+    """
+    return self.get_one(path="/accounts/password/reset/", params={"code": code})
+
+
+def request_password_reset(self, email):
+    """
+    request a password reset email for a given email.
+    Will only be sent if the email is a valid user.
+    TODO: Uses token=settings.TRUSTED_USER_TOKEN,
+    """
+    return self.get_one(path="/accounts/password/reset/", params={"email": email})
+
+
+def reset_password(self, code, password):
+    """settings.TRUSTED_USER_TOKEN
+    """
+    path = "/accounts/password/reset/"
+    return self.post(path, {"password": password, "code": code})
+
+
+def organisation_user_cases(self, organisation_id):
+    """
+    Return unique auth details for an organisation.
+    Auth details are found attached to user-case-org authentiaction objects
+    """
+    return self.get_many(f"/organisations/{organisation_id}/user_cases/")
+
+
+def companies_house_search(self, query):
+    results = self.get_many(f"/companieshouse/search/", params={"q": query})
+    return results
+
+
+def get_user_cases(
+        self, archived=False, request_for=None, all_cases=False, outer=False, fields=None
+):
+    """
+    Return all cases associated with this user.
+    If request_for is set to a user id, the request will return case summary associated
+    with the requested for user, IF the requesting user has the permission to do so
+    """
+    params = {"fields": fields}
+    if archived:
+        params["archived"] = archived if archived == "all" else "true"
+    if all_cases:
+        params["all"] = "true"
+        params["initiated"] = "false"
+    if outer:
+        params["outer"] = "true"
+        params["initiated"] = "false"
+    if request_for:
+        path = f"/cases/user/{request_for}/"
+    else:
+        path = "/cases/"
+    cases = self.get_many(path, params=params)
+    return cases
+
+
+def get_invite_details(self, invite_id):
+    path = f"/invitations/{invite_id}/"
+    return self.get_one(path)
+
+
+def get_feedback_form(self, form_key=None, form_id=None):
+    try:
+        if form_key:
+            return self.get_one(path=f"/feedback/key/{form_key}/")
+        elif form_id:
+            return self.get_one(path=f"/feedback/{form_id}/")
+        else:
+            return None
+    except HTTPError:
+        return None
+
+
+def get_organisation_users(self, organisation_id, case_id=None):
+    """
+    Return all users for this organisation or org_case
+    """
+    path = f"/organisations/{organisation_id}/users/"
+    return self.get_many(path, {"case_id": case_id})
+
+def available_review_types(self, case_id, summary=True):
+    path = f"/cases/{case_id}/reviewtypes/"
+    params = {}
+    if summary:
+        params["summary"] = True
+    return self.get_many(path, params=params)
+
+
+def get_notices(self, all_notices=True):
+    return self.get_many(f"/cases/notices/", {"all_notices": all_notices})
+
+
+def get_notice(self, notice_id):
+    return self.get_one(f"/cases/notice/{notice_id}/")
+
+# CASEWORKER PORTAL ONLY #############################
+
+
+def set_case_data(self, case_id, data):
+    case = self.get_one(f"/cases/{case_id}/")
+    url = f"/cases/{case_id}/"
+    return self.post(url, data=data)
+
+
+def delete_submission(self, case_id, submission_id):
+    """
+    delete submission
+    """
+    return self.delete(f"/case/{case_id}/submission/{submission_id}/")
+
+
+def submission_notify(self, case_id, organisation_id, submission_id, values=None, notice_type=None):
+    notice_type = notice_type or "invite"
+    path = f"/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/notify/{notice_type}/"
+    try:
+        notify = self.post(path, data=values)
+    except APIException as httpexc:
+        notify = {"error": httpexc.detail.get("errors")}
+    except Exception as exc:
+        notify = {"error": str(exc)}
+    return notify
+
+
+def clone_submission(self, case_id, submission_id, **kwargs):
+    path = f"/case/{case_id}/submission/{submission_id}/clone/"
+    data = pluck(
+        kwargs,
+        [
+            "name",
+            "contact_id",
+            "organisation_id",
+            "due_at",
+            "time_window",
+            "description",
+            "url",
+            "deficiency_notice_params",
+        ],
     )
+    try:
+        result = self.post(path, data=data)
+    except Exception as exc:
+        result = {"error": str(exc)}
+    return result
+
+
+def approval_notify(self, case_id, organisation_id, action, values):
+    path = f"/organisations/case/{case_id}/organisation/{organisation_id}/notify/{action}/"
+    self.post(path, data=values)
+
+
+def approve_submission(self, submission_id):
+    path = f"/organisations/submission/{submission_id}/approval/"
+    self.post(path)
+
+
+def verify_caserole(self, case_id, organisation_id, set=None):
+    path = f"/organisations/{organisation_id}/case/{case_id}/verify/"
+    self.post(path)
+
+
+def reject_organisation(self, case_id, organisation_id):
+    # Mark an organisation as fraudulent
+    path = f"/organisations/{organisation_id}/reject/"
+    self.post(path)
+
+
+def invite_contact(self, case_id, contact_id, case_role_id, values):
+    path = f"/invitations/invite/{contact_id}/to/{case_id}/as/{case_role_id}/"
+    response = self.post(path=path, data=values)
+    return response
+
+
+def get_organisation_id_by_name(self, names, case_summary=False):
+    """
+    Return all organisation ids for a set of names
+    """
+    url = f"/organisations/lookup/"
+    organisations = self.get_many(url, params={"name": names, "cases": case_summary})
+    return organisations
+
+
+def delete_organisation(self, organisation_id):
+    return self.delete(f"/organisations/{organisation_id}/")
+
+
+def remove_organisation_from_case(self, case_id, organisation_id):
+    return self.delete(f"/organisations/{organisation_id}/case/{case_id}/remove/")
+
+
+def attach_document(
+        self, *, data, document_id, organisation_id=None, case_id=None, submission_id=None
+):
+    data = data or {"name": "Uploaded from UI"}
+    data["document_id"] = document_id
+    path = None
+    document = None
+    if case_id and organisation_id and submission_id:
+        path = (
+            f"/documents/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/"
+        )
+    elif case_id and submission_id:
+        path = f"/documents/case/{case_id}/submission/{submission_id}/"
+    elif "bundle_id" in data:
+        bundle_id = data["bundle_id"]
+        path = f"/documents/bundle/{bundle_id}/document/{document_id}/add/"
+    if path:
+        document = self.post(path, data)
+    return document
+
+
+def detach_document(self, *, document_id, case_id, submission_id):
+    return self.delete(
+        f"/documents/case/{case_id}/submission/{submission_id}/document/{document_id}/"
+    )
+
+
+def get_system_documents(self, fields=None, criteria=None):
+    """
+    Return all documents not part of a case or submission
+    """
+    params = {"fields": fields, "criteria": criteria} if fields or criteria else None
+    _url = f"/documents/system/"
+    documents = self.get_many(_url, params)
+    return documents
+
+
+def get_case_documents(
+    self, case_id, source="all", order_by=None, order_dir=None, submission_id=None
+):
+    _url = f"/documents/case/{case_id}/{source}/"
+    params = {}
+    if order_by:
+        params["order_by"] = order_by
+        params["order_dir"] = order_dir or "asc"
+    if submission_id:
+        params["submission_id"] = submission_id
+    documents = self.get_many(_url, params=params)
+    return documents
+
+
+def get_case_document_count(self, case_id):
+    _url = f"/documents/case/{case_id}/count/"
+    return self.get_one(_url)
+
+
+def issue_documents_to_case(self, case_id, document_ids, name=None, submission_type_id=None):
+    _url = f"/documents/case/{case_id}/issue/"
+    response = self.post(
+        _url,
+        data={"name": name, "document_ids": document_ids, "submission_type_id": submission_type_id},
+    )
+    return response
+
+
+def set_submission_document_state(
+    self, case_id, submission_id, document_id, status, block_from_public_file, block_reason
+):
+    _url = f"/case/{case_id}/submission/{submission_id}/document/{document_id}/status/"
+    params = {
+        "status": status,
+        "block_from_public_file": block_from_public_file,
+        "block_reason": block_reason,
+    }
+    response = self.post(_url, data=params)
+    return response
+
+
+def toggle_documents_confidentiality(self, case_id, document_ids):
+    _url = f"/documents/case/{case_id}/confidential/"
+    response = self.post(_url, data={"document_ids": document_ids})
+    return response
+
+
+def set_system_parameter(self, key, value):
+    url = f"/core/systemparam/"
+    response = self.post(url, {"key": key, "value": value})
+    cache_key = self.md5_hash(f"SYS_PARAM_{key}")
+    self.set_cache(cache_key, response, SYSTEM_PARAMS_TTL)
     return response
 
 
@@ -750,15 +750,6 @@ def get_audit_export(self, case_id):
     return self.get_resource(self.get_url(path))
 
 
-def get_workflow_templates(self, template_id=None):
-    if template_id:
-        path = f"/workflow/templates/{template_id}/"
-        return self.get_many(path)
-    else:
-        path = "/workflow/templates/"
-        return self.get_one(path)
-
-
 def get_case_workflow(self, case_id):
     path = f"/case/{case_id}/workflow/"
     return self.get_one(path)
@@ -784,19 +775,10 @@ def set_case_workflow_state(self, case_id, node_keys=None, values=None):
     return self.post(path, payload)
 
 
-def get_case_status(self, case_id):
-    """
-    Return information about the current case stage and action
-    """
-    path = f"/case/{case_id}/status/"
-    return self.get_one(path)
-
-
-def note_sort(note):
-    return note["created_at"]
-
-
 def get_notes(self, case_id, content_type, model_id, model_key=None):
+    def note_sort(note):
+        return note["created_at"]
+
     if model_key:
         path = f"/note/case/{case_id}/on/{content_type}/{model_id}/{model_key}/"
     else:
@@ -810,7 +792,7 @@ def get_notes(self, case_id, content_type, model_id, model_key=None):
 
 
 def create_note(
-    self, case_id, content_type, model_id, note_text, note_data=None, document=None, model_key=None
+        self, case_id, content_type, model_id, note_text, note_data=None, document=None, model_key=None
 ):
     path = f"/note/case/{case_id}/on/{content_type}/{model_id}/"
     params = {
@@ -844,12 +826,6 @@ def update_note_document(self, case_id, note_id, document_id, confidentiality):
     return self.post(path, params)
 
 
-def get_all_case_enums(self, case_id=None, **kwargs):
-    path = f"/cases/enums/{case_id}/" if case_id else "/cases/enums/"
-    enums = self.get_one(path, params=kwargs)
-    return enums
-
-
 def submit_full_case_data(self, case_data):
     """
     Submit a full case data pack (e.g., full Ex Officio case) for creation
@@ -876,15 +852,6 @@ def get_case_team_members(self, case_id):
     """
     path = f"/case/{case_id}/team/"
     return self.get_many(path)
-
-
-def assign_case_team_member(self, case_id, user_id, remove=False):
-    """
-    Assign (or remove) a team member from a case
-    """
-    path = f"/case/{case_id}/users/assign/{user_id}/"
-    method = self.post if not remove else self.delete
-    return method(path)
 
 
 def assign_case_team(self, case_id, user_ids):
@@ -915,28 +882,12 @@ def get_organisation_case_role(self, case_id, organisation_id, fields=None):
     return self.get_one(path, fields=None)
 
 
-def set_organisation_case_role(self, case_id, organisation_id, role_key, params=None):
-    """
-    Set the organisation role in a case
-    """
-    path = f"/organisations/{organisation_id}/case/{case_id}/role/{role_key}/"
-    return self.post(path, params)
-
-
 def set_organisation_case_role_loa(self, case_id, organisation_id, params):
     """
     Set letter of authority details
     """
     path = f"/organisations/case/{case_id}/organisation/{organisation_id}/loa/"
     return self.post(path, params)
-
-
-def get_organisation(self, organisation_id, case_id=None):
-    if case_id:
-        path = f"/organisations/{organisation_id}/case/{case_id}/"
-    else:
-        path = f"/organisations/{organisation_id}/"
-    return self.get_one(path)
 
 
 def get_organisations(self, case_id=None, gov_body=None, fields=None):
@@ -990,11 +941,6 @@ def update_contact(self, contact_id, contact_params):
     return self.post(path, data=contact_params)
 
 
-def set_case_primary_contact(self, contact_id, organisation_id, case_id):
-    path = f"/contacts/{contact_id}/case/{case_id}/set/primary/{organisation_id}/"
-    return self.post(path)
-
-
 def create_and_add_contact(self, case_id, organisation_id, contact_params):
     """
     Create a contact and add it to a case
@@ -1008,21 +954,6 @@ def get_notification_template(self, template_id):
     return self.get_one(path)
 
 
-def get_notification_preview(self, template_id, values):
-    path = f"/core/notification/template/{template_id}/"
-    return self.post(path, data={"values": values})
-
-
-def get_case_files(self, case_id, internal_external, sort, direction):
-    path = f"/documents/file/case/{case_id}/"
-    path += f"?filter_by={internal_external}"
-    if sort:
-        path += f"&order_by={sort}"
-    if direction:
-        path += f"&order_dir={direction}"
-    return self.get_many(path)
-
-
 def create_contact(self, params):
     response = self.post("/contacts/", data=params)
     return response
@@ -1030,11 +961,6 @@ def create_contact(self, params):
 
 def delete_contact(self, contact_id):
     response = self.delete(f"/contact/{contact_id}/")
-    return response
-
-
-def update_case(self, case_id, update_spec):
-    response = self.post(f"/case/{case_id}/", data=update_spec)
     return response
 
 
@@ -1070,30 +996,6 @@ def get_duplicate_organisations(self, limit=None):
     return response
 
 
-def get_third_party_invites(self, case_id=None, submission_id=None):
-    """
-    Return all invites from a particular 3rd party submission
-    """
-    path = f"/invitations/case/{case_id}/submission/{submission_id}/"
-    return self.get_many(path)
-
-
-def get_organisation_invite_submissions(self, organisation_id):
-    """
-    Return 3rd party invite submissions for an organisation
-    """
-    path = f"/cases/organisation/{organisation_id}/invites/"
-    return self.get_many(path)
-
-
-def remove_third_party_invite(self, case_id, submission_id, invite_id):
-    """
-    Remove an invitee from a 3rd party invitation submission
-    """
-    path = f"/invitations/case/{case_id}/submission/{submission_id}/remove/{invite_id}"
-    return self.delete(path)
-
-
 def get_case_invite_submissions(self, case_id):
     """
     Return all 3rd party invite submissions a case
@@ -1105,68 +1007,6 @@ def get_case_invite_submissions(self, case_id):
 def action_third_party_invite(self, case_id, submission_id, contact_id, params):
     path = f"/invitations/case/{case_id}/submission/{submission_id}/invite/contact/{contact_id}/notify/"
     return self.post(path, data=params)
-
-
-def get_team_users(self):
-    """
-    Used from Public to return all users for the requestor's team (same organisation)
-    """
-    path = f"/team/users/"
-    response = self.get_many(path)
-    return response
-
-
-def get_user(self, user_id, organisation_id=None):
-    """
-    Return user info. Restrict to organisation if provided.
-    """
-    if organisation_id:
-        path = f"/team/{organisation_id}/user/{user_id}/"
-    else:
-        path = f"/user/{user_id}/"
-    response = self.get_one(path)
-    return response
-
-
-def update_create_team_user(self, organisation_id, data, user_id=None):
-    """
-    Create or update an organisation user
-    """
-    path = f"/team/{organisation_id}/user/"
-    if user_id:
-        path = f"{path}{user_id}/"
-    response = self.post(path, data=data)
-    return response
-
-
-def assign_user_to_case(
-    self,
-    user_organisation_id,
-    user_id,
-    case_id,
-    representing_id=None,
-    submission_id=None,
-    primary=None,
-):
-    representing_str = f"representing/{representing_id}/" if representing_id else ""
-    if submission_id:
-        path = f"/team/{user_organisation_id}/users/assign/{user_id}/case/{case_id}/submission/{submission_id}/{representing_str}"
-    else:
-        path = (
-            f"/team/{user_organisation_id}/users/assign/{user_id}/case/{case_id}/{representing_str}"
-        )
-    params = {"primary": primary}
-    return self.post(path, data=params)
-
-
-def get_pending_user_case_assignments(self, organisation_id, user_id=None):
-    path = f"/team/{organisation_id}/users/assign/"
-    return self.get_many(path)
-
-
-def remove_user_from_case(self, organisation_id, user_id, case_id, representing_id):
-    path = f"/team/{organisation_id}/users/assign/{user_id}/case/{case_id}/representing/{representing_id}/"
-    return self.post(path, data={"remove": True,})
 
 
 def create_or_update_user(self, data, user_id=None):
@@ -1200,62 +1040,13 @@ def update_my_account(self, data):
     return response
 
 
-def two_factor_request(self, delivery_type=None, user_agent=None, ip_address=None):
-    """
-    Request a 2FA code
-    """
-    path = "/auth/2fa/"
-    extra_headers = {}
-    if user_agent:
-        extra_headers["X-User-Agent"] = user_agent
-    if ip_address:
-        extra_headers["X-Forwarded-For"] = ip_address
-    if delivery_type:
-        path = f"{path}{delivery_type}/"
-    return self.get_one(path, extra_headers=extra_headers)
-
-
-def two_factor_auth(self, code, user_agent=None, ip_address=None):
-    path = "/auth/2fa/"
-    extra_headers = {}
-    if user_agent:
-        extra_headers["X-User-Agent"] = user_agent
-    if ip_address:
-        extra_headers["X-Forwarded-For"] = ip_address
-    return self.post(path, {"code": code}, extra_headers=extra_headers)
-
-
-def validate_password_reset(self, code):
-    """
-    Validate (only) a password reset code.
-    TODO: Uses settings.TRUSTED_USER_TOKEN
-    """
-    return self.get_one(path="/accounts/password/reset/", params={"code": code})
-
-
-def request_password_reset(self, email):
-    """
-    request a password reset email for a given email.
-    Will only be sent if the email is a valid user.
-    TODO: Uses token=settings.TRUSTED_USER_TOKEN,
-    """
-    return self.get_one(path="/accounts/password/reset/", params={"email": email})
-
-
-def reset_password(self, code, password):
-    """settings.TRUSTED_USER_TOKEN
-    """
-    path = "/accounts/password/reset/"
-    return self.post(path, {"password": password, "code": code})
-
-
 def get_all_job_titles(self):
     path = "/core/jobtitles/"
     return self.get_many(path)
 
 
 def get_document_bundles(self, case_type_id=None, status=None):
-    path = "/document/bundles/"
+    path = "/documents/bundles/"
     if case_type_id:
         path = f"{path}for/{case_type_id}/"
     if status:
@@ -1264,7 +1055,7 @@ def get_document_bundles(self, case_type_id=None, status=None):
 
 
 def get_document_bundle(self, bundle_id):
-    path = f"/document/bundle/{bundle_id}/"
+    path = f"/documents/bundle/{bundle_id}/"
     return self.get_one(path)
 
 
@@ -1317,14 +1108,6 @@ def organisation_cases(self, organisation_id):
     return cases
 
 
-def organisation_user_cases(self, organisation_id):
-    """
-    Return unique auth details for an organisation.
-    Auth details are found attached to user-case-org authentiaction objects
-    """
-    return self.get_many(f"/organisations/{organisation_id}/user_cases/")
-
-
 def get_organisation_matches(self, organisation_id=None, **kwargs):
     """
     Reurn a match structure for one organisation - containing potential duplicates an lots of other information
@@ -1338,9 +1121,336 @@ def get_organisation_matches(self, organisation_id=None, **kwargs):
     return matches
 
 
-def companies_house_search(self, query):
-    results = self.get_many(f"/companieshouse/search/", params={"q": query})
-    return results
+def get_invitations(self, case_id, submission_id=None):
+    path = f"/invitations/case/{case_id}/"
+    if submission_id:
+        path = f"{path}submission/{submission_id}/"
+    return self.get_many(path)
+
+
+def get_security_groups(self, user_type):
+    """
+    Return security groups by user type
+    """
+    groups = self.get_many(f"/security/groups/{user_type}/")
+    return groups
+
+
+def get_case_participants(self, case_id, fields=None):
+    """
+    Return all the participant patrties in a case
+    """
+    path = f"/case/{case_id}/participants/"
+    return self.get_many(path, {"fields": fields})
+
+
+def get_feedback_forms(self):
+    try:
+        return self.get_many(path=f"/feedback/")
+    except HTTPError:
+        return None
+
+
+def get_feedback_collections(self, form_id):
+    try:
+        return self.get_many(path=f"/feedback/submit/{form_id}/")
+    except HTTPError:
+        return None
+
+
+def export_feedback(self, form_id):
+    path = f"/core/feedback/export/{form_id}/"
+    return self.get_resource(self.get_url(path))
+
+
+def toggle_user_admin(self, user_id, organisation_id):
+    path = f"/organisations/{organisation_id}/user/{user_id}/set/admin/"
+    return self.post(path)
+
+
+def toggle_organisation_sampled(self, organisation_id, case_id):
+    """
+    Toggle the organisation's sampled flag for a case
+    """
+    path = f"/organisations/{organisation_id}/case/{case_id}/sampled/"
+    return self.post(path)
+
+
+def toggle_organisation_nonresponsive(self, organisation_id, case_id):
+    """
+    Toggle the organisation's non responsive flag for a case
+    """
+    path = f"/organisations/{organisation_id}/case/{case_id}/nonresponsive/"
+    return self.post(path)
+
+
+def organisation_merge(self, organisation_id, merge_with, params):
+    """
+    Merge one organisation with another
+    """
+    path = f"/organisations/{organisation_id}/"
+    return self.post(path, {"merge_with": merge_with, "parameter_map": params})
+
+
+def case_milestones(self, case_id):
+    path = f"/cases/{case_id}/milestones"
+    return self.get_many(path)
+
+
+def set_case_milestone(self, case_id, milestone_key, date):
+    path = f"/cases/{case_id}/milestone/{milestone_key}/"
+    return self.post(path, {"date": date})
+
+
+def create_update_notice(
+        self,
+        name,
+        reference,
+        terminated_at=None,
+        published_at=None,
+        notice_id=None,
+        case_type=None,
+        review_case=None,
+):
+    path = f"/cases/notice/{notice_id}/" if notice_id else "/cases/notice/"
+    return self.post(
+        path,
+        {
+            "name": name,
+            "reference": reference,
+            "terminated_at": terminated_at,
+            "published_at": published_at,
+            "review_case_id": review_case,
+            "case_type_id": case_type,
+        },
+    )
+
+
+def search_documents(
+        self,
+        case_id=None,
+        query=None,
+        confidential_status=None,
+        user_type=None,
+        organisation_id=None,
+        **kwargs,
+):
+    path = f"/documents/search/"
+    if case_id:
+        path = f"{path}case/{case_id}/"
+    _url = self.get_url(path)
+    params = {
+        "q": query,
+        "confidential_status": confidential_status,
+        "user_type": user_type,
+        "organisation_id": organisation_id,
+    }
+    response = self.get(_url, params=params)
+    return response.get("response", {})
+
+
+def get_tasks(self, query=None, fields=None):
+    params = {
+        "query": query,
+        "fields": fields,
+    }
+    return self.get_many(f"/tasks/", params=params)
+
+
+def create_update_task(self, task_id=None, content_type=None, model_id=None, data=None):
+    path = f"/tasks/{task_id}/" if task_id else "/tasks/"
+    # if content_type:
+    #    path += f'on/{content_type}/{model_id}/'
+    return self.post(path, data)
+
+
+def delete_task(self, task_id):
+    return self.delete(f"/tasks/{task_id}/")
+
+
+# PUBLIC PORTAL ONLY #################################
+
+
+def get_application_state(self, organisation_id, case_id):
+    """
+    Return the state structure of a case
+    """
+    if organisation_id and case_id:
+        state = self.get_one(f"/case/{case_id}/organisation/{organisation_id}/state/")
+    else:
+        state = self.get_one(f"/case/state/")
+    return state
+
+
+def get_submission_public(self, case_id, submission_id, organisation_id=None, private=True):
+    params = {"private": "true" if private else "false"}
+    if organisation_id:
+        path = f"/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/"
+    else:
+        path = f"/case/{case_id}/submission/{submission_id}/"
+    submission = self.get_one(path, params=params)
+    return submission
+
+
+def update_submission_public(self, case_id, organisation_id, submission_id, data, **kwargs):
+    path = f"/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/"
+    return self.post(path, data=data)
+
+
+def submission_type_exists_for_case(self, case_id, organisation_id, submission_type_id):
+    return self.get_one(
+        f"/case/{case_id}/organisation/{organisation_id}/submission/type/{submission_type_id}/"
+    )
+
+
+def get_organisation_cases(self, organisation_id, initiated_only=True, all_cases=None, outer=None):
+    """
+    Return all cases for an organisation
+    """
+    url = f"/cases/organisation/{organisation_id}/" if organisation_id else "/cases/"
+    params = {}
+    if initiated_only is not None:
+        params["initiated"] = initiated_only
+    if all_cases is not None:
+        params["all"] = all_cases
+    if outer is not None:
+        params["outer"] = outer
+    cases = self.get_many(url, params)
+    return cases
+
+
+def remove_document(self, organisation_id, case_id, submission_id, document_id):
+    _url = f"/documents/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/delete/{document_id}/"
+    response = self.delete(_url)
+    return response
+
+
+def get_product(self, organisation_id, case_id, product_id=None):
+    _url = f"/case/{case_id}/organisation/{organisation_id}/product/"
+    product = self.get_one(_url)
+    return product
+
+
+def submit_product_information(
+        self,
+        organisation_id,
+        case_id,
+        sector_id,
+        description,
+        product_id=None,
+        name=None,
+        hs_codes=None,
+):
+    if product_id:
+        url = f"/cases/{case_id}/organisation/{organisation_id}/product/{product_id}/"
+    else:
+        url = f"/cases/{case_id}/organisation/{organisation_id}/product/"
+    _product = self.post(
+        url,
+        data={
+            "sector_id": sector_id,
+            "description": description,
+            "product_name": name,
+            "hs_codes": hs_codes,
+        },
+    )
+    return _product
+
+
+def remove_product_hs_code(self, organisation_id, case_id, product_id, code_id):
+    _url = f"/cases/{case_id}/organisation/{organisation_id}/product/{product_id}/hscode/{code_id}/"
+    return self.delete(_url)
+
+
+def get_source_of_exports(self, organisation_id, case_id, export_source_id=None):
+    _url = f"/case/{case_id}/organisation/{organisation_id}/exportsource/"
+    return self.get_many(_url)
+
+
+def submit_source_of_exports(
+        self, organisation_id, case_id, country, num_of_companies, export_source_id=None
+):
+    if export_source_id:
+        url = f"/cases/{case_id}/organisation/{organisation_id}/exportsource/{export_source_id}/"
+    else:
+        url = f"/cases/{case_id}/organisation/{organisation_id}/exportsource/"
+    _source = self.post(url, data={"country": country, "num_of_companies": num_of_companies})
+    return _source
+
+
+def submit_source_of_exports_public(
+        self, organisation_id, case_id, sources, evidence_of_subsidy=None
+):
+    url = f"/cases/{case_id}/organisation/{organisation_id}/exportsource/"
+    _source = self.post(
+        url, data={"sources": json.dumps(sources), "evidence_of_subsidy": evidence_of_subsidy,}
+    )
+    return _source
+
+
+def set_review_flag(self, organisation_id, case_id, submission_id, review=None):
+    url = f"/cases/{case_id}/organisation/{organisation_id}/submission/{submission_id}/review/"
+    submission = self.post(url, data={"review": review})
+    return submission
+
+
+def set_review_type(self, case_id, submission_id, reference_case, review_type):
+    url = f"/cases/{case_id}/submission/{submission_id}/reviewtype/"
+    case = self.post(url, data={"reference_case": reference_case, "case_type": review_type,})
+
+
+def set_submission_status_public(self, case_id, submission_id, status_id=None, status_context=None):
+    url = f"/case/{case_id}/submission/{submission_id}/status/"
+    response = self.post(
+        url, {"submission_status_id": status_id, "status_context": status_context,}
+    )
+    return response
+
+
+def get_organisation_invite_submissions(self, organisation_id):
+    """
+    Return 3rd party invite submissions for an organisation
+    """
+    path = f"/cases/organisation/{organisation_id}/invites/"
+    return self.get_many(path)
+
+
+def remove_third_party_invite(self, case_id, submission_id, invite_id):
+    """
+    Remove an invitee from a 3rd party invitation submission
+    """
+    path = f"/invitations/case/{case_id}/submission/{submission_id}/remove/{invite_id}"
+    return self.delete(path)
+
+
+def get_team_users(self):
+    """
+    Used from Public to return all users for the requestor's team (same organisation)
+    """
+    path = f"/team/users/"
+    response = self.get_many(path)
+    return response
+
+
+def update_create_team_user(self, organisation_id, data, user_id=None):
+    """
+    Create or update an organisation user
+    """
+    path = f"/team/{organisation_id}/user/"
+    if user_id:
+        path = f"{path}{user_id}/"
+    response = self.post(path, data=data)
+    return response
+
+
+def get_pending_user_case_assignments(self, organisation_id, user_id=None):
+    path = f"/team/{organisation_id}/users/assign/"
+    return self.get_many(path)
+
+
+def remove_user_from_case(self, organisation_id, user_id, case_id, representing_id):
+    path = f"/team/{organisation_id}/users/assign/{user_id}/case/{case_id}/representing/{representing_id}/"
+    return self.post(path, data={"remove": True,})
 
 
 def get_latest_notices(self, limit=None):
@@ -1363,39 +1473,7 @@ def get_case_state(self, case_ids, fields):
     return self.get_one(path, params=params)
 
 
-def get_public_case_documents(self, case_id):
-    path = f"/documents/case/{case_id}/public/"
-    return self.get_many(path)
-
-
-def get_user_cases(
-    self, archived=False, request_for=None, all_cases=False, outer=False, fields=None
-):
-    """
-    Return all cases associated with this user.
-    If request_for is set to a user id, the request will return case summary associated
-    with the requested for user, IF the requesting user has the permission to do so
-    """
-    params = {"fields": fields}
-    if archived:
-        params["archived"] = archived if archived == "all" else "true"
-    if all_cases:
-        params["all"] = "true"
-        params["initiated"] = "false"
-    if outer:
-        params["outer"] = "true"
-        params["initiated"] = "false"
-    if request_for:
-        path = f"/cases/user/{request_for}/"
-    else:
-        path = "/cases/"
-    cases = self.get_many(path, params=params)
-    return cases
-
-
 # TODO : Check this without user
-
-
 def get_all_cases(self, param="all", exclude_types=None):
     """
     Return all cases. If a user is not provided, the public case list is returned
@@ -1433,58 +1511,14 @@ def submit_organisation_information(self, case_id=None, **kwargs):
     return _organisation
 
 
-def set_document_review_flag(self, organisation_id, case_id, submission_id, review=None):
-    url = f"/cases/{case_id}/organisation/{organisation_id}/submission/{submission_id}"
-    submission = self.post(url, data={"document_review": review,})
-    return submission
-
-
-def get_invitations(self, case_id, submission_id=None):
-    path = f"/invitations/case/{case_id}/"
-    if submission_id:
-        path = f"{path}submission/{submission_id}/"
-    return self.get_many(path)
-
-
 def get_case_invitation_by_code(self, code, case_id):
     path = f"/invitations/details/{code}/{case_id}/"
     return self.get_one(path)
 
 
-def get_invite_details(self, invite_id):
-    path = f"/invitations/{invite_id}/"
-    return self.get_one(path)
-
-
-def accept_invitation(self, code, case_id=None):
-    if case_id:
-        path = f"/invitations/accept/{code}/{case_id}/"
-    else:
-        path = f"/invitations/accept/{code}/"
-    return self.post(path)
-
-
-def accept_public_invitation(self, case_id, short_code):
-    path = f"/invitations/accept/{short_code}/"
-    return self.post(path)
-
-
 def remove_submission(self, case_id, organisation_id, submission_id, **kwargs):
     path = f"/case/{case_id}/organisation/{organisation_id}/submission/{submission_id}/"
     return self.delete(path)
-
-
-def email_available(self, email):
-    """
-    Check if an email is available to use as a user login.
-    TODO: Check if public/trusted call
-    """
-    path = "/auth/email/available/"
-    response = self.post(path, data={"email": email})
-    if response.get("available"):
-        return True
-    else:
-        return False
 
 
 def register_interest_in_case(self, case_id, submission_id=None, **kwargs):
@@ -1514,22 +1548,6 @@ def get_public_security_groups(self):
     return groups
 
 
-def get_security_groups(self, user_type):
-    """
-    Return security groups by user type
-    """
-    groups = self.get_many(f"/security/groups/{user_type}/")
-    return groups
-
-
-def get_case_participants(self, case_id, fields=None):
-    """
-    Return all the participant patrties in a case
-    """
-    path = f"/case/{case_id}/participants/"
-    return self.get_many(path, {"fields": fields})
-
-
 def get_user_case_organisations(self, case_id):
     """
     Return all the organisations this user is associated with for this case
@@ -1552,14 +1570,6 @@ def is_representing(self, organisation_id):
     return self.post(path)
 
 
-def user_invites(self, contact_id):
-    """
-    Get invitations for this user
-    """
-    path = f"/invitations/for/{contact_id}/"
-    return self.get_many(path)
-
-
 def get_user_invitations(self):
     """
     Return all invitations made by a user
@@ -1579,47 +1589,9 @@ def third_party_invite(self, case_id, organisation_id, submission_id=None, invit
     return self.post(path, data=invite_params)
 
 
-def get_feedback_forms(self):
-    try:
-        return self.get_many(path=f"/feedback/")
-    except HTTPError:
-        return None
-
-
-def get_feedback_collections(self, form_id):
-    try:
-        return self.get_many(path=f"/feedback/submit/{form_id}/")
-    except HTTPError:
-        return None
-
-
-def get_feedback_form_placements(self):
-    try:
-        return self.get_many(path=f"/feedback/placements/")
-    except HTTPError:
-        return None
-
-
-def get_feedback_form(self, form_key=None, form_id=None):
-    try:
-        if form_key:
-            return self.get_one(path=f"/feedback/key/{form_key}/")
-        elif form_id:
-            return self.get_one(path=f"/feedback/{form_id}/")
-        else:
-            return None
-    except HTTPError:
-        return None
-
-
 def submit_feedback(self, form_key, placement_id, data):
     path = f"/feedback/submit/{form_key}/placement/{placement_id}/"
     return self.post(path, data)
-
-
-def export_feedback(self, form_id):
-    path = f"/core/feedback/export/{form_id}/"
-    return self.get_resource(self.get_url(path))
 
 
 def verify_email(self, code=None):
@@ -1680,144 +1652,3 @@ def get_sectors(self):
     Return all available industry sectors
     """
     return self.get_many("/sectors/")
-
-
-def get_organisation_users(self, organisation_id, case_id=None):
-    """
-    Return all users for this organisation or org_case
-    """
-    path = f"/organisations/{organisation_id}/users/"
-    return self.get_many(path, {"case_id": case_id})
-
-
-def toggle_user_admin(self, user_id, organisation_id):
-    path = f"/organisations/{organisation_id}/user/{user_id}/set/admin/"
-    return self.post(path)
-
-
-def toggle_organisation_sampled(self, organisation_id, case_id):
-    """
-    Toggle the organisation's sampled flag for a case
-    """
-    path = f"/organisations/{organisation_id}/case/{case_id}/sampled/"
-    return self.post(path)
-
-
-def toggle_organisation_nonresponsive(self, organisation_id, case_id):
-    """
-    Toggle the organisation's non responsive flag for a case
-    """
-    path = f"/organisations/{organisation_id}/case/{case_id}/nonresponsive/"
-    return self.post(path)
-
-
-def organisation_merge(self, organisation_id, merge_with, params):
-    """
-    Merge one organisation with another
-    """
-    path = f"/organisations/{organisation_id}/"
-    return self.post(path, {"merge_with": merge_with, "parameter_map": params})
-
-
-def case_milestones(self, case_id):
-    path = f"/cases/{case_id}/milestones"
-    return self.get_many(path)
-
-
-def set_case_milestone(self, case_id, milestone_key, date):
-    path = f"/cases/{case_id}/milestone/{milestone_key}/"
-    return self.post(path, {"date": date})
-
-
-def available_review_types(self, case_id, summary=True):
-    path = f"/cases/{case_id}/reviewtypes/"
-    params = {}
-    if summary:
-        params["summary"] = True
-    return self.get_many(path, params=params)
-
-
-def available_notice_review_types(self, notice_id):
-    path = f"/cases/notice/{notice_id}/reviewtypes/"
-    return self.get_many(path)
-
-
-def get_notices(self, all_notices=True):
-    return self.get_many(f"/cases/notices/", {"all_notices": all_notices})
-
-
-def get_notice(self, notice_id):
-    return self.get_one(f"/cases/notice/{notice_id}/")
-
-
-def create_update_notice(
-    self,
-    name,
-    reference,
-    terminated_at=None,
-    published_at=None,
-    notice_id=None,
-    case_type=None,
-    review_case=None,
-):
-    path = f"/cases/notice/{notice_id}/" if notice_id else "/cases/notice/"
-    return self.post(
-        path,
-        {
-            "name": name,
-            "reference": reference,
-            "terminated_at": terminated_at,
-            "published_at": published_at,
-            "review_case_id": review_case,
-            "case_type_id": case_type,
-        },
-    )
-
-
-def search_documents(
-    self,
-    case_id=None,
-    query=None,
-    confidential_status=None,
-    user_type=None,
-    organisation_id=None,
-    **kwargs,
-):
-    path = f"/documents/search/"
-    if case_id:
-        path = f"{path}case/{case_id}/"
-    _url = self.get_url(path)
-    params = {
-        "q": query,
-        "confidential_status": confidential_status,
-        "user_type": user_type,
-        "organisation_id": organisation_id,
-    }
-    response = self.get(_url, params=params)
-    return response.get("response", {})
-
-
-def get_tasks(self, query=None, fields=None):
-    params = {
-        "query": query,
-        "fields": fields,
-    }
-    return self.get_many(f"/tasks/", params=params)
-
-
-def create_update_task(self, task_id=None, content_type=None, model_id=None, data=None):
-    path = f"/tasks/{task_id}/" if task_id else "/tasks/"
-    # if content_type:
-    #    path += f'on/{content_type}/{model_id}/'
-    return self.post(path, data)
-
-
-def delete_task(self, task_id):
-    return self.delete(f"/tasks/{task_id}/")
-
-
-def get_document_index_status(self):
-    """
-    Return a breakdown of document index status
-    """
-    return self.get_one("/documents/index/status/")
