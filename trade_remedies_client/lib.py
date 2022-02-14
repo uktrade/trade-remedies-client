@@ -401,12 +401,14 @@ def two_factor_auth(self, code, user_agent=None, ip_address=None):
     return self.post(path, {"code": code}, extra_headers=extra_headers)
 
 
-def validate_password_reset(self,user_pk, token):
+def validate_password_reset(self, user_pk, token):
     """
     Validate (only) a password reset code.
     TODO: Uses settings.TRUSTED_USER_TOKEN
     """
-    return self.get_one(path="/accounts/password/reset_form/", params={"token": token, "user_pk": user_pk})
+    return self.get_one(
+        path="/accounts/password/reset_form/", params={"token": token, "user_pk": user_pk}
+    )
 
 
 def request_password_reset(self, email):
