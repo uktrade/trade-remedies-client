@@ -13,7 +13,7 @@ from .exceptions import APIException
 
 ENVIRONMENT_KEY = getattr(settings, "ENVIRONMENT_KEY")
 API_URL = getattr(settings, "API_URL")
-TRUSTED_USER_TOKEN = getattr(settings, "TRUSTED_USER_TOKEN")
+HEALTH_CHECK_TOKEN = getattr(settings, "HEALTH_CHECK_TOKEN")
 
 
 class Client:
