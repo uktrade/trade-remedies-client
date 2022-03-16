@@ -4,6 +4,9 @@ jobs:
     docker:
       - image: circleci/python:3.6.6
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "ce:6c:90:92:e9:eb:76:41:a0:45:45:a6:87:9d:85:dd"
       - checkout
       - restore_cache:
           keys:
@@ -29,6 +32,22 @@ jobs:
           paths:
             - env
           key: pip-dependencies-{{ checksum "requirements-dev.txt" }}
+      - run:
+          name: Collect and publish fitness functions
+          command:
+            coverage json
+            fitness-functions run . trade_remedies_client
+            fitness-functions publish . trade_remedies_client
+      - run:
+          name: Push the updated READ.ME back to GitHub
+          command: |
+            . venv/bin/activate
+            git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"
+            git config user.name "FITNESS-FUNCTIONS MACHINE USER"
+            git add fitness/fitness_metrics.db
+            git add fitness/fitness_metrics_graph.png
+            git commit -m "[ci skip] AUTOMATED - update fitness functions"
+            git push << pipeline.project.git_url >> << pipeline.git.branch >>
   
 workflows:
   version: 2
