@@ -401,12 +401,14 @@ def two_factor_auth(self, code, user_agent=None, ip_address=None):
     return self.post(path, {"code": code}, extra_headers=extra_headers)
 
 
-def validate_password_reset(self, code):
+def validate_password_reset(self, user_pk, token):
     """
     Validate (only) a password reset code.
     TODO: Uses settings.TRUSTED_USER_TOKEN
     """
-    return self.get_one(path="/accounts/password/reset/", params={"code": code})
+    return self.get_one(
+        path="/accounts/password/reset_form/", params={"token": token, "user_pk": user_pk}
+    )
 
 
 def request_password_reset(self, email):
@@ -415,14 +417,14 @@ def request_password_reset(self, email):
     Will only be sent if the email is a valid user.
     TODO: Uses token=settings.TRUSTED_USER_TOKEN,
     """
-    return self.get_one(path="/accounts/password/reset/", params={"email": email})
+    return self.get_one(path="/accounts/password/request_reset/", params={"email": email})
 
 
-def reset_password(self, code, password):
+def reset_password(self, token, user_pk, password):
     """settings.TRUSTED_USER_TOKEN
     """
-    path = "/accounts/password/reset/"
-    return self.post(path, {"password": password, "code": code})
+    path = "/accounts/password/reset_form/"
+    return self.post(path, {"password": password, "token": token, "user_pk": user_pk})
 
 
 def organisation_user_cases(self, organisation_id):
