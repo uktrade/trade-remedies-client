@@ -2,7 +2,7 @@ version: 2
 jobs:
   code_quality:
     docker:
-      - image: circleci/python:3.6.6
+      - image: cimg/python:3.9.5
     steps:
       - add_ssh_keys:
           fingerprints:
