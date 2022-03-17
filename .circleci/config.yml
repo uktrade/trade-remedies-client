@@ -48,7 +48,7 @@ jobs:
             git add fitness/fitness_metrics_graph.png
             git commit -m "[ci skip] AUTOMATED - update fitness functions"
             git push << pipeline.project.git_url >> << pipeline.git.branch >>
-  
+
 workflows:
   version: 2
   run_tests:
