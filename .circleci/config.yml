@@ -42,7 +42,7 @@ jobs:
       - run:
           name: Push the updated READ.ME back to GitHub
           command: |
-            . venv/bin/activate
+            source env/bin/activate
             git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"
             git config user.name "FITNESS-FUNCTIONS MACHINE USER"
             git add fitness/fitness_metrics.db
