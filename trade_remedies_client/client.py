@@ -13,13 +13,13 @@ from .exceptions import APIException
 
 ENVIRONMENT_KEY = getattr(settings, "ENVIRONMENT_KEY")
 API_URL = getattr(settings, "API_URL")
-TRUSTED_USER_TOKEN = getattr(settings, "TRUSTED_USER_TOKEN")
+HEALTH_CHECK_TOKEN = getattr(settings, "HEALTH_CHECK_TOKEN")
 
 
 class Client:
     def __init__(self, token=None, **kwargs):
         self._method = None
-        self.token = token or TRUSTED_USER_TOKEN
+        self.token = token or HEALTH_CHECK_TOKEN
         self.use_cache = kwargs.get("use_cache", False)
         for k in kwargs:
             setattr(self, k, kwargs[k])
