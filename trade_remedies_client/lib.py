@@ -421,8 +421,7 @@ def request_password_reset(self, email):
 
 
 def reset_password(self, token, user_pk, password):
-    """settings.TRUSTED_USER_TOKEN
-    """
+    """settings.TRUSTED_USER_TOKEN"""
     path = "/accounts/password/reset_form/"
     return self.post(path, {"password": password, "token": token, "user_pk": user_pk})
 
