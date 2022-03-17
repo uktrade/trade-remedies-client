@@ -10,13 +10,13 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - pip-dependencies-{{ checksum "requirements-dev.txt" }}
+            - pip-dependencies-{{ checksum "requirements/dev.txt" }}
       - run:
           name: Create virtualenv and install dependencies
           command: |
               python3 -m venv env
               . env/bin/activate
-              pip install -r requirements-dev.txt          
+              pip install -r requirements/dev.txt
       - run:
           name: Run black
           command: |
@@ -31,7 +31,7 @@ jobs:
       - save_cache:
           paths:
             - env
-          key: pip-dependencies-{{ checksum "requirements-dev.txt" }}
+          key: pip-dependencies-{{ checksum "requirements/dev.txt" }}
       - run:
           name: Collect and publish fitness functions
           command:
