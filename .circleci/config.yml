@@ -35,6 +35,7 @@ jobs:
       - run:
           name: Collect and publish fitness functions
           command:
+            source env/bin/activate
             coverage json
             fitness-functions run . trade_remedies_client
             fitness-functions publish . trade_remedies_client
