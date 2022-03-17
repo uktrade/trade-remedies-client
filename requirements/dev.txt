@@ -20,8 +20,6 @@ charset-normalizer==2.0.12
     #   requests
 click==8.0.4
     # via black
-coverage==6.3.2
-    # via -r requirements.in/dev.in
 cycler==0.11.0
     # via matplotlib
 django==4.0.3
