@@ -14,34 +14,34 @@ jobs:
       - run:
           name: Create virtualenv and install dependencies
           command: |
-              python3 -m venv env
-              . env/bin/activate
+              python3 -m venv venv
+              . venv/bin/activate
               pip install -r requirements/dev.txt
       - run:
           name: Run black
           command: |
-            source env/bin/activate
+            . venv/bin/activate
             black trade_remedies_client --check
       - run:
           name: flake8
           command: |
-            source env/bin/activate
+            . venv/bin/activate
             echo "this is where we run flake8"
             # flake8 --count
       - save_cache:
           paths:
-            - env
+            - "venv"
           key: pip-dependencies-{{ checksum "requirements/dev.txt" }}
       - run:
           name: Collect and publish fitness functions
           command: |
-            source env/bin/activate
+            . venv/bin/activate
             fitness-functions run . trade_remedies_client
             fitness-functions publish . trade_remedies_client
       - run:
           name: Push the updated READ.ME back to GitHub
           command: |
-            source env/bin/activate
+            . venv/bin/activate
             git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"
             git config user.name "FITNESS-FUNCTIONS MACHINE USER"
             git add fitness/fitness_metrics.db
