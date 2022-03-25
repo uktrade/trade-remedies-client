@@ -355,6 +355,10 @@ def get_user(self, user_id, organisation_id=None):
     response = self.get_one(path)
     return response
 
+def get_user_by_email(self, user_email):
+    path = f"/user/get_user_by_email/{user_email}"
+    response = self.get_one(path)
+    return response
 
 def assign_user_to_case(
     self,
