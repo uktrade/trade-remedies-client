@@ -132,7 +132,12 @@ class Client:
             _headers["X-Forwarded-For"] = ip_address
         response = requests.post(
             self.get_url("/auth"),
-            data={"email": email, "password": password, "code": code, "case_id": case_id,},
+            data={
+                "email": email,
+                "password": password,
+                "code": code,
+                "case_id": case_id,
+            },
             headers=_headers,
         )
         response.raise_for_status()
@@ -142,7 +147,11 @@ class Client:
     def register(self, email, password, name):
         response = requests.post(
             self.get_url("/register/"),
-            data={"email": email, "password": password, "name": name,},
+            data={
+                "email": email,
+                "password": password,
+                "name": name,
+            },
             headers={"X-Origin-Environment": ENVIRONMENT_KEY},
         )
         response_data = response.json()

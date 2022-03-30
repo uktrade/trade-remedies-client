@@ -355,10 +355,12 @@ def get_user(self, user_id, organisation_id=None):
     response = self.get_one(path)
     return response
 
+
 def get_user_by_email(self, user_email):
     path = f"/user/get_user_by_email/{user_email}"
     response = self.get_one(path)
     return response
+
 
 def assign_user_to_case(
     self,
@@ -425,8 +427,7 @@ def request_password_reset(self, email):
 
 
 def reset_password(self, token, user_pk, password):
-    """settings.TRUSTED_USER_TOKEN
-    """
+    """settings.TRUSTED_USER_TOKEN"""
     path = "/accounts/password/reset_form/"
     return self.post(path, {"password": password, "token": token, "user_pk": user_pk})
 
@@ -820,7 +821,11 @@ def update_note(self, case_id, note_id, note_text, document=None):
 def add_note_document(self, case_id, note_id, document=None, confidentiality=None):
     path = f"/note/case/{case_id}/{note_id}/"
     return self.post(
-        path, {"confidentiality": confidentiality, "document": document if document else None,}
+        path,
+        {
+            "confidentiality": confidentiality,
+            "document": document if document else None,
+        },
     )
 
 
@@ -977,7 +982,13 @@ def get_case_submission_bundles(self, case_id=None, bundle_id=None, status=None)
     path = f"/documents/case/{case_id}/bundles/"
     if bundle_id:
         return self.get_one(path, params={"bundle_id": bundle_id})
-    return self.get_many(path, params={"case_id": case_id, "status": status,})
+    return self.get_many(
+        path,
+        params={
+            "case_id": case_id,
+            "status": status,
+        },
+    )
 
 
 def set_case_submission_bundle(self, bundle_id=None, data=None):
@@ -1392,7 +1403,11 @@ def submit_source_of_exports_public(
 ):
     url = f"/cases/{case_id}/organisation/{organisation_id}/exportsource/"
     _source = self.post(
-        url, data={"sources": json.dumps(sources), "evidence_of_subsidy": evidence_of_subsidy,}
+        url,
+        data={
+            "sources": json.dumps(sources),
+            "evidence_of_subsidy": evidence_of_subsidy,
+        },
     )
     return _source
 
@@ -1405,13 +1420,23 @@ def set_review_flag(self, organisation_id, case_id, submission_id, review=None):
 
 def set_review_type(self, case_id, submission_id, reference_case, review_type):
     url = f"/cases/{case_id}/submission/{submission_id}/reviewtype/"
-    case = self.post(url, data={"reference_case": reference_case, "case_type": review_type,})
+    case = self.post(
+        url,
+        data={
+            "reference_case": reference_case,
+            "case_type": review_type,
+        },
+    )
 
 
 def set_submission_status_public(self, case_id, submission_id, status_id=None, status_context=None):
     url = f"/case/{case_id}/submission/{submission_id}/status/"
     response = self.post(
-        url, {"submission_status_id": status_id, "status_context": status_context,}
+        url,
+        {
+            "submission_status_id": status_id,
+            "status_context": status_context,
+        },
     )
     return response
 
@@ -1459,7 +1484,12 @@ def get_pending_user_case_assignments(self, organisation_id, user_id=None):
 
 def remove_user_from_case(self, organisation_id, user_id, case_id, representing_id):
     path = f"/team/{organisation_id}/users/assign/{user_id}/case/{case_id}/representing/{representing_id}/"
-    return self.post(path, data={"remove": True,})
+    return self.post(
+        path,
+        data={
+            "remove": True,
+        },
+    )
 
 
 def get_latest_notices(self, limit=None):
