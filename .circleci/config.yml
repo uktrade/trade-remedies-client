@@ -1,35 +1,54 @@
-version: 2
+version: 2.1
 jobs:
   code_quality:
     docker:
-      - image: circleci/python:3.6.6
+      - image: cimg/python:3.9.5
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "ce:6c:90:92:e9:eb:76:41:a0:45:45:a6:87:9d:85:dd"
       - checkout
       - restore_cache:
           keys:
-            - pip-dependencies-{{ checksum "requirements-dev.txt" }}
+            - pip-dependencies-{{ checksum "requirements/dev.txt" }}
       - run:
           name: Create virtualenv and install dependencies
           command: |
-              python3 -m venv env
-              . env/bin/activate
-              pip install -r requirements-dev.txt          
+              python3 -m venv venv
+              . venv/bin/activate
+              pip install -r requirements/dev.txt
       - run:
           name: Run black
           command: |
-            source env/bin/activate
+            . venv/bin/activate
             black trade_remedies_client --check
       - run:
           name: flake8
           command: |
-            source env/bin/activate
+            . venv/bin/activate
             echo "this is where we run flake8"
             # flake8 --count
       - save_cache:
           paths:
-            - env
-          key: pip-dependencies-{{ checksum "requirements-dev.txt" }}
-  
+            - "venv"
+          key: pip-dependencies-{{ checksum "requirements/dev.txt" }}
+      - run:
+          name: Collect and publish fitness functions
+          command: |
+            . venv/bin/activate
+            fitness-functions run . trade_remedies_client
+            fitness-functions publish . trade_remedies_client
+      - run:
+          name: Push the updated READ.ME back to GitHub
+          command: |
+            . venv/bin/activate
+            git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"
+            git config user.name "FITNESS-FUNCTIONS MACHINE USER"
+            git add fitness/fitness_metrics.db
+            git add fitness/fitness_metrics_graph.png
+            git commit -m "[ci skip] AUTOMATED - update fitness functions"
+            git push << pipeline.project.git_url >> << pipeline.git.branch >>
+
 workflows:
   version: 2
   run_tests:

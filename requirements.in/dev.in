@@ -1,0 +1,8 @@
+-r ../requirements/base.txt
+
+black
+flake8
+matplotlib
+sklearn
+
+git+https://github.com/uktrade/fitness-functions

@@ -76,3 +76,6 @@ installed on build time. If not using docker it is possible to also update the l
 In future, if the client ends up on pypi, then it is also deployable by issuing:
 
     make deploy
+
+## Fitness Functions
+![Current fitness metrics for TRSV2](fitness/fitness_metrics_graph.png)

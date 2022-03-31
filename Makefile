@@ -28,12 +28,16 @@ local_deploy:
 		echo "Please rebuild public and caseworker containers to update the client within the containers"
 
 flake8:
-		docker run -it --rm -v requirements:/usr/local -v "$(CURDIR):/app" python sh -c "cd /app && pip install -r requirements-dev.txt && flake8 --count" 
+		docker run -it --rm -v requirements:/usr/local -v "$(CURDIR):/app" python sh -c "cd /app && pip install -r requirements/dev.txt && flake8 --count"
 
 black:
-		docker run -it --rm -v requirements:/usr/local -v "$(CURDIR):/app" python sh -c "cd /app && pip install -r requirements-dev.txt && black trade_remedies_client --check"
+		docker run -it --rm -v requirements:/usr/local -v "$(CURDIR):/app" python sh -c "cd /app && pip install -r requirements/dev.txt && black trade_remedies_client --check"
 
 deploy:
 		rm dist/*.tar.gz
 		python setup.py sdist bdist_wheel
 		twine upload
+
+requirements:
+		pip-compile --output-file requirements/base.txt requirements.in/base.in
+		pip-compile --output-file requirements/dev.txt requirements.in/dev.in
