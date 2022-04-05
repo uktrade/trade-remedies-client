@@ -15,19 +15,17 @@ jobs:
           name: Create virtualenv and install dependencies
           command: |
               python3 -m venv venv
+              echo ". venv/bin/activate" >> $BASH_ENV
               . venv/bin/activate
               pip install -r requirements/dev.txt
       - run:
           name: Run black
           command: |
-            . venv/bin/activate
             black trade_remedies_client --check
       - run:
           name: flake8
           command: |
-            . venv/bin/activate
-            echo "this is where we run flake8"
-            # flake8 --count
+            pflake8 trade_remedies_client --config pyproject.toml
       - save_cache:
           paths:
             - "venv"

@@ -515,7 +515,6 @@ def get_notice(self, notice_id):
 
 
 def set_case_data(self, case_id, data):
-    case = self.get_one(f"/cases/{case_id}/")
     url = f"/cases/{case_id}/"
     return self.post(url, data=data)
 
@@ -1420,7 +1419,7 @@ def set_review_flag(self, organisation_id, case_id, submission_id, review=None):
 
 def set_review_type(self, case_id, submission_id, reference_case, review_type):
     url = f"/cases/{case_id}/submission/{submission_id}/reviewtype/"
-    case = self.post(
+    self.post(
         url,
         data={
             "reference_case": reference_case,
