@@ -4,5 +4,6 @@ black
 flake8
 matplotlib
 sklearn
+pyproject-flake8
 
 git+https://github.com/uktrade/fitness-functions

@@ -15,19 +15,17 @@ jobs:
           name: Create virtualenv and install dependencies
           command: |
               python3 -m venv venv
+              echo ". venv/bin/activate" >> $BASH_ENV
               . venv/bin/activate
               pip install -r requirements/dev.txt
       - run:
           name: Run black
           command: |
-            . venv/bin/activate
             black trade_remedies_client --check
       - run:
           name: flake8
           command: |
-            . venv/bin/activate
-            echo "this is where we run flake8"
-            # flake8 --count
+            pflake8 trade_remedies_client --config pyproject.toml
       - save_cache:
           paths:
             - "venv"
@@ -35,13 +33,11 @@ jobs:
       - run:
           name: Collect and publish fitness functions
           command: |
-            . venv/bin/activate
             fitness-functions run . trade_remedies_client
             fitness-functions publish . trade_remedies_client
       - run:
           name: Push the updated READ.ME back to GitHub
           command: |
-            . venv/bin/activate
             git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"
             git config user.name "FITNESS-FUNCTIONS MACHINE USER"
             git add fitness/fitness_metrics.db

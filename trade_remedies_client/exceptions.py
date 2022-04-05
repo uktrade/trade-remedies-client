@@ -5,7 +5,7 @@ class APIException(Exception):
                 self.detail = args[0].response.json()
                 self.status_code = args[0].response.status_code
                 self.message = self.detail.get("detail")
-            except Exception as apiexc:
+            except Exception:
                 self.message = "Unknown error"
         elif args:
             self.message = args[0]
