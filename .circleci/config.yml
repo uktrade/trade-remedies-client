@@ -33,13 +33,11 @@ jobs:
       - run:
           name: Collect and publish fitness functions
           command: |
-            . venv/bin/activate
             fitness-functions run . trade_remedies_client
             fitness-functions publish . trade_remedies_client
       - run:
           name: Push the updated READ.ME back to GitHub
           command: |
-            . venv/bin/activate
             git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"
             git config user.name "FITNESS-FUNCTIONS MACHINE USER"
             git add fitness/fitness_metrics.db
