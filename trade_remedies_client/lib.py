@@ -495,11 +495,11 @@ def get_organisation_users(self, organisation_id, case_id=None):
     return self.get_many(path, {"case_id": case_id})
 
 
-def available_review_types(self, case_id, summary=True):
+def available_review_types(self, case_id, is_notice=True):
     path = f"/cases/{case_id}/reviewtypes/"
     params = {}
-    if summary:
-        params["summary"] = True
+    if is_notice:
+        params["is_notice"] = True
     return self.get_many(path, params=params)
 
 
