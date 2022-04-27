@@ -6,6 +6,7 @@
 import types
 import hashlib
 import requests
+import inspect
 from django.conf import settings
 from django.core.cache import cache
 from . import lib
@@ -39,6 +40,10 @@ class Client:
             "X-User-Agent": "",
             "X-Forwarded-For": "",
         }
+        if hasattr(self, "originating_details"):
+            _headers.update({
+                f"X-Originating-Details-{key}": value
+            } for key,value in self.originating_details.items())
         if extra_headers and isinstance(extra_headers, dict):
             _headers.update(extra_headers)
         return _headers
