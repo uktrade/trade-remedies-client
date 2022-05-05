@@ -123,9 +123,7 @@ class Client:
         else:
             return response_data
 
-    def authenticate(
-        self, email, password, user_agent=None, ip_address=None, invitation_code=None
-    ):
+    def authenticate(self, email, password, user_agent=None, ip_address=None, invitation_code=None):
         return self.post(
             "/auth",
             data={
@@ -133,10 +131,7 @@ class Client:
                 "password": password,
                 "invitation_code": invitation_code,
             },
-            extra_headers={
-                "X-User-Agent": user_agent,
-                "X-Forwarded-For": ip_address
-            }
+            extra_headers={"X-User-Agent": user_agent, "X-Forwarded-For": ip_address},
         )
 
     def register(self, email, password, name):
