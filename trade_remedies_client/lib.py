@@ -404,7 +404,7 @@ def two_factor_auth(self, code, user_agent=None, ip_address=None):
         extra_headers["X-User-Agent"] = user_agent
     if ip_address:
         extra_headers["X-Forwarded-For"] = ip_address
-    return self.post(path, {"code": code}, extra_headers=extra_headers)
+    return self.post(path, {"2fa_code": code}, extra_headers=extra_headers)
 
 
 def validate_password_reset(self, user_pk, token):

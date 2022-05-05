@@ -75,7 +75,10 @@ class Client:
             params["fields"] = fields
         _headers = self.headers(extra_headers=extra_headers)
         response = requests.get(url, headers=_headers, params=params)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as http_exception:
+            raise APIException(http_exception)
         return response.json()
 
     def get_one(self, path, params=None, extra_headers=None, fields=None):
