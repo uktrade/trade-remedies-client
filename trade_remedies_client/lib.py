@@ -1690,3 +1690,7 @@ def get_sectors(self):
     Return all available industry sectors
     """
     return self.get_many("/sectors/")
+
+
+def v2_register(self, **kwargs):
+    return self.post("/v2_register/", data=kwargs)
