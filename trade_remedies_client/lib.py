@@ -1692,5 +1692,6 @@ def get_sectors(self):
     return self.get_many("/sectors/")
 
 
-def v2_register(self, **kwargs):
-    return self.post("/v2_register/", data=kwargs)
+def v2_register(self, registration_data):
+    # V2 registration helper
+    return self.post("/v2_register/", data=registration_data)
