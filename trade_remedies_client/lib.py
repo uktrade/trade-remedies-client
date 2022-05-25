@@ -1705,3 +1705,10 @@ def send_email_verification_link(self, user_pk):
 def verify_email_verification_link(self, user_pk, email_verify_code):
     """Verifies that an email verification link is valid and updates the user accordingly."""
     return self.post(f"/email_verify/{user_pk}/{email_verify_code}")
+
+
+def get_validation_error(self, key):
+    """Gets the validation error entry for a particular key,
+    found in api/core/validation_errors.py.
+    """
+    return self.get_one(f"/core/validation_error/{key}")
