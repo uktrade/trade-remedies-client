@@ -76,7 +76,7 @@ def get_submissions(self, case_id, show_global=False, fields=None):
 
 
 def get_submissions_public(
-        self, case_id, organisation_id=None, private=True, get_global=False, fields=None
+    self, case_id, organisation_id=None, private=True, get_global=False, fields=None
 ):
     params = {
         "private": "true" if private else "false",
@@ -144,7 +144,7 @@ def set_submission_state(self, case_id, submission_id, state, issue=None):
 
 
 def get_submission_documents(
-        self, case_id, submission_id, request_for_organisation_id=None, all_versions=None
+    self, case_id, submission_id, request_for_organisation_id=None, all_versions=None
 ):
     """
     Return all the documents associated with a submission. Optionally request the docs FOR a
@@ -160,16 +160,16 @@ def get_submission_documents(
 
 
 def upload_document(
-        self,
-        *,
-        data,
-        file=None,
-        organisation_id=None,
-        case_id=None,
-        submission_id=None,
-        system=False,
-        document_id=None,
-        issued=False,
+    self,
+    *,
+    data,
+    file=None,
+    organisation_id=None,
+    case_id=None,
+    submission_id=None,
+    system=False,
+    document_id=None,
+    issued=False,
 ):
     data = data or {
         "name": "Uploaded from UI",
@@ -278,14 +278,14 @@ def is_feature_flag_enabled(self, key):
 
 
 def set_submission_status(
-        self,
-        case_id,
-        submission_id,
-        status_id,
-        stage_change_if_sufficient=None,
-        stage_change_if_deficient=None,
-        deficiency_documents=None,
-        issue=None,
+    self,
+    case_id,
+    submission_id,
+    status_id,
+    stage_change_if_sufficient=None,
+    stage_change_if_deficient=None,
+    deficiency_documents=None,
+    issue=None,
 ):
     url = f"/case/{case_id}/submission/{submission_id}/status/"
     files = None
@@ -363,13 +363,13 @@ def get_user_by_email(self, user_email):
 
 
 def assign_user_to_case(
-        self,
-        user_organisation_id,
-        user_id,
-        case_id,
-        representing_id=None,
-        submission_id=None,
-        primary=None,
+    self,
+    user_organisation_id,
+    user_id,
+    case_id,
+    representing_id=None,
+    submission_id=None,
+    primary=None,
 ):
     representing_str = f"representing/{representing_id}/" if representing_id else ""
     if submission_id:
@@ -446,7 +446,7 @@ def companies_house_search(self, query):
 
 
 def get_user_cases(
-        self, archived=False, request_for=None, all_cases=False, outer=False, fields=None
+    self, archived=False, request_for=None, all_cases=False, outer=False, fields=None
 ):
     """
     Return all cases associated with this user.
@@ -605,7 +605,7 @@ def remove_organisation_from_case(self, case_id, organisation_id):
 
 
 def attach_document(
-        self, *, data, document_id, organisation_id=None, case_id=None, submission_id=None
+    self, *, data, document_id, organisation_id=None, case_id=None, submission_id=None
 ):
     data = data or {"name": "Uploaded from UI"}
     data["document_id"] = document_id
@@ -642,7 +642,7 @@ def get_system_documents(self, fields=None, criteria=None):
 
 
 def get_case_documents(
-        self, case_id, source="all", order_by=None, order_dir=None, submission_id=None
+    self, case_id, source="all", order_by=None, order_dir=None, submission_id=None
 ):
     _url = f"/documents/case/{case_id}/{source}/"
     params = {}
@@ -670,7 +670,7 @@ def issue_documents_to_case(self, case_id, document_ids, name=None, submission_t
 
 
 def set_submission_document_state(
-        self, case_id, submission_id, document_id, status, block_from_public_file, block_reason
+    self, case_id, submission_id, document_id, status, block_from_public_file, block_reason
 ):
     _url = f"/case/{case_id}/submission/{submission_id}/document/{document_id}/status/"
     params = {
@@ -801,8 +801,7 @@ def get_notes(self, case_id, content_type, model_id, model_key=None):
 
 
 def create_note(
-        self, case_id, content_type, model_id, note_text, note_data=None, document=None,
-        model_key=None
+    self, case_id, content_type, model_id, note_text, note_data=None, document=None, model_key=None
 ):
     path = f"/note/case/{case_id}/on/{content_type}/{model_id}/"
     params = {
@@ -1223,14 +1222,14 @@ def set_case_milestone(self, case_id, milestone_key, date):
 
 
 def create_update_notice(
-        self,
-        name,
-        reference,
-        terminated_at=None,
-        published_at=None,
-        notice_id=None,
-        case_type=None,
-        review_case=None,
+    self,
+    name,
+    reference,
+    terminated_at=None,
+    published_at=None,
+    notice_id=None,
+    case_type=None,
+    review_case=None,
 ):
     path = f"/cases/notice/{notice_id}/" if notice_id else "/cases/notice/"
     return self.post(
@@ -1247,13 +1246,13 @@ def create_update_notice(
 
 
 def search_documents(
-        self,
-        case_id=None,
-        query=None,
-        confidential_status=None,
-        user_type=None,
-        organisation_id=None,
-        **kwargs,
+    self,
+    case_id=None,
+    query=None,
+    confidential_status=None,
+    user_type=None,
+    organisation_id=None,
+    **kwargs,
 ):
     path = f"/documents/search/"
     if case_id:
@@ -1352,14 +1351,14 @@ def get_product(self, organisation_id, case_id, product_id=None):
 
 
 def submit_product_information(
-        self,
-        organisation_id,
-        case_id,
-        sector_id,
-        description,
-        product_id=None,
-        name=None,
-        hs_codes=None,
+    self,
+    organisation_id,
+    case_id,
+    sector_id,
+    description,
+    product_id=None,
+    name=None,
+    hs_codes=None,
 ):
     if product_id:
         url = f"/cases/{case_id}/organisation/{organisation_id}/product/{product_id}/"
@@ -1388,7 +1387,7 @@ def get_source_of_exports(self, organisation_id, case_id, export_source_id=None)
 
 
 def submit_source_of_exports(
-        self, organisation_id, case_id, country, num_of_companies, export_source_id=None
+    self, organisation_id, case_id, country, num_of_companies, export_source_id=None
 ):
     if export_source_id:
         url = f"/cases/{case_id}/organisation/{organisation_id}/exportsource/{export_source_id}/"
@@ -1399,7 +1398,7 @@ def submit_source_of_exports(
 
 
 def submit_source_of_exports_public(
-        self, organisation_id, case_id, sources, evidence_of_subsidy=None
+    self, organisation_id, case_id, sources, evidence_of_subsidy=None
 ):
     url = f"/cases/{case_id}/organisation/{organisation_id}/exportsource/"
     _source = self.post(
