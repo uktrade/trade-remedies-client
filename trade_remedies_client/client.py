@@ -75,7 +75,10 @@ class Client:
             params["fields"] = fields
         _headers = self.headers(extra_headers=extra_headers)
         response = requests.get(url, headers=_headers, params=params)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as http_exception:
+            raise APIException(http_exception)
         return response.json()
 
     def get_one(self, path, params=None, extra_headers=None, fields=None):
@@ -120,29 +123,16 @@ class Client:
         else:
             return response_data
 
-    def authenticate(
-        self, email, password, user_agent=None, ip_address=None, code=None, case_id=None
-    ):
-        _headers = {
-            "X-Origin-Environment": ENVIRONMENT_KEY,
-        }
-        if user_agent:
-            _headers["X-User-Agent"] = user_agent
-        if ip_address:
-            _headers["X-Forwarded-For"] = ip_address
-        response = requests.post(
-            self.get_url("/auth"),
+    def authenticate(self, email, password, user_agent=None, ip_address=None, invitation_code=None):
+        return self.post(
+            "/auth",
             data={
                 "email": email,
                 "password": password,
-                "code": code,
-                "case_id": case_id,
+                "invitation_code": invitation_code,
             },
-            headers=_headers,
+            extra_headers={"X-User-Agent": user_agent, "X-Forwarded-For": ip_address},
         )
-        response.raise_for_status()
-        response_data = response.json()
-        return response_data.get("response")
 
     def register(self, email, password, name):
         response = requests.post(

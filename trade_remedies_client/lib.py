@@ -404,7 +404,7 @@ def two_factor_auth(self, code, user_agent=None, ip_address=None):
         extra_headers["X-User-Agent"] = user_agent
     if ip_address:
         extra_headers["X-Forwarded-For"] = ip_address
-    return self.post(path, {"code": code}, extra_headers=extra_headers)
+    return self.post(path, {"2fa_code": code}, extra_headers=extra_headers)
 
 
 def validate_password_reset(self, user_pk, token):
@@ -1690,3 +1690,33 @@ def get_sectors(self):
     Return all available industry sectors
     """
     return self.get_many("/sectors/")
+
+
+def v2_register(self, registration_data):
+    # V2 registration helper
+    return self.post("/v2_register/", data=registration_data)
+
+
+def send_email_verification_link(self, user_pk):
+    """Sends an email verification email to the user with PK user_pk"""
+    return self.post(f"/email_verify/{user_pk}/")
+
+
+def verify_email_verification_link(self, user_pk, email_verify_code):
+    """Verifies that an email verification link is valid and updates the user accordingly."""
+    return self.post(f"/email_verify/{user_pk}/{email_verify_code}")
+
+
+def get_validation_error(self, key):
+    """Gets the validation error entry for a particular key,
+    found in api/core/validation_errors.py.
+    """
+    return self.get_one(f"/core/validation_error/{key}")
+
+
+def v2_get_all_cases(self, params=None):
+    return self.get_many("/v2_cases/", params=params)
+
+
+def v2_get_case(self, case_id):
+    return self.get_one(f"/v2_cases/{case_id}")
