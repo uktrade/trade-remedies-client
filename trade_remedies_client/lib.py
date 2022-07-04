@@ -1720,3 +1720,19 @@ def v2_get_all_cases(self, params=None):
 
 def v2_get_case(self, case_id):
     return self.get_one(f"/v2_cases/{case_id}")
+
+
+def v2_get_all_feature_flags(self):
+    return self.get_many("/core/django-feature-flags")
+
+
+def v2_get_one_feature_flag(self, feature_flag_name):
+    return self.get_one(f"/core/django-feature-flags/{feature_flag_name}/")
+
+
+def v2_change_user_group(self, user_pk, group_name, request_method):
+    return self.post(
+        f"/core/users/{user_pk}/add_group/",
+        data={"group_name": group_name},
+        request_type=request_method,
+    )
