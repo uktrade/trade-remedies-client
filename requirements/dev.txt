@@ -22,7 +22,7 @@ click==8.0.4
     # via black
 cycler==0.11.0
     # via matplotlib
-django==4.0.4
+django==3.2.14
     # via -r requirements.in/../requirements/base.txt
 django-cache-memoize==0.1.10
     # via -r requirements.in/../requirements/base.txt
@@ -73,6 +73,10 @@ pyproject-flake8==0.0.1a3
     # via -r requirements.in/dev.in
 python-dateutil==2.8.2
     # via matplotlib
+pytz==2022.1
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   django
 requests==2.27.1
     # via -r requirements.in/../requirements/base.txt
 scikit-learn==1.0.2
