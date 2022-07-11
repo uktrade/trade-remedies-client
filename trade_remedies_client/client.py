@@ -97,12 +97,14 @@ class Client:
         else:
             raise Exception("Invalid response")
 
-    def post(self, path, data=None, files=None, extra_headers=None):
+    def post(self, path, data=None, files=None, extra_headers=None, request_type="post"):
         _headers = self.headers(extra_headers=extra_headers)
         data = data or {}
         try:
             _url = self.get_url(path)
-            response = requests.post(_url, data=data, headers=_headers, files=files)
+            response = getattr(requests, request_type)(
+                _url, data=data, headers=_headers, files=files
+            )
             response.raise_for_status()
         except requests.exceptions.HTTPError as http_exception:
             raise APIException(http_exception)
