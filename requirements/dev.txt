@@ -22,7 +22,7 @@ click==8.0.4
     # via black
 cycler==0.11.0
     # via matplotlib
-django==3.2.14
+django==3.2.15
     # via -r requirements.in/../requirements/base.txt
 django-cache-memoize==0.1.10
     # via -r requirements.in/../requirements/base.txt
@@ -43,7 +43,9 @@ joblib==1.1.0
 kiwisolver==1.4.0
     # via matplotlib
 matplotlib==3.5.1
-    # via -r requirements.in/dev.in
+    # via
+    #   -r requirements.in/dev.in
+    #   fitness-functions
 mccabe==0.6.1
     # via flake8
 mypy-extensions==0.4.3
