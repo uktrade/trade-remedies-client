@@ -14,6 +14,7 @@ help:
 		@echo -e "$(COLOUR_YELLOW)make build$(COLOUR_NONE) : Rebuild the last version locally"
 		@echo -e "$(COLOUR_YELLOW)make deploy$(COLOUR_NONE) : Rebuild the last version and deploy to pypi"
 		@echo -e "$(COLOUR_YELLOW)make local_deploy$(COLOUR_NONE) : Locally build current version and install it to the local repositories (public/caseworker)"
+		@echo -e "$(COLOUR_YELLOW)make requirements$(COLOUR_NONE) : Update requirements.txt files"
 
 build:
 		rm -rf dist
