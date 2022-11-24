@@ -3,6 +3,7 @@
 black
 flake8
 matplotlib
+pillow>=9.2.0
 pyproject-flake8
 
 git+https://github.com/uktrade/fitness-functions
