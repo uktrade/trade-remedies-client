@@ -6,4 +6,5 @@ matplotlib
 pillow>=9.2.0
 pyproject-flake8
 
+git+https://github.com/uktrade/modification-pre-commit
 git+https://github.com/uktrade/fitness-functions
