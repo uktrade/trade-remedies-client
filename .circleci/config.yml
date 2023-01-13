@@ -4,9 +4,6 @@ jobs:
     docker:
       - image: cimg/python:3.9.5
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "06:e1:f1:13:4e:7d:07:b8:52:48:e8:36:c9:86:75:f9"
       - checkout
       - restore_cache:
           keys:
@@ -30,23 +27,9 @@ jobs:
           paths:
             - "venv"
           key: pip-dependencies-{{ checksum "requirements/dev.txt" }}
-      - run:
-          name: Collect and publish fitness functions
-          command: |
-            fitness-functions-run . trade_remedies_client
-            fitness-functions-publish .
-      - run:
-          name: Push the updated READ.ME back to GitHub
-          command: |
-            git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"
-            git config user.name "FITNESS-FUNCTIONS MACHINE USER"
-            git add fitness/fitness_metrics.db
-            git add fitness/fitness_metrics_graph.png
-            git commit -m "[ci skip] AUTOMATED - update fitness functions"
-            git push << pipeline.project.git_url >> << pipeline.git.branch >>
 
 workflows:
   version: 2
-  run_tests:
+  build:
     jobs:
       - code_quality
