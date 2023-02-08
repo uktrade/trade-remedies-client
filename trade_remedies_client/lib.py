@@ -1738,7 +1738,7 @@ def v2_is_user_feature_flag_activated(self, user_pk, feature_flag_name):
 
 def v2_change_user_group(self, user_pk, group_name, request_method):
     return self.post(
-        f"/core/users/{user_pk}/add_group/",
+        f"/core/v2/{user_pk}/change_group/",
         data={"group_name": group_name},
         request_type=request_method,
     )
