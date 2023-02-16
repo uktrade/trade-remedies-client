@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/dev.txt requirements.in/dev.in
 #
-asgiref==3.5.0
+asgiref==3.6.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django
@@ -26,7 +26,7 @@ cycler==0.11.0
     # via matplotlib
 distlib==0.3.6
     # via virtualenv
-django==3.2.17
+django==3.2.18
     # via -r requirements.in/../requirements/base.txt
 django-cache-memoize==0.1.10
     # via -r requirements.in/../requirements/base.txt
@@ -86,7 +86,7 @@ pyproject-flake8==0.0.1a3
     # via -r requirements.in/dev.in
 python-dateutil==2.8.2
     # via matplotlib
-pytz==2022.1
+pytz==2022.7.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django
