@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/base.txt requirements.in/base.in
 #
-asgiref==3.5.0
+asgiref==3.6.0
     # via django
 certifi==2022.12.7
     # via
@@ -12,13 +12,13 @@ certifi==2022.12.7
     #   requests
 charset-normalizer==2.0.12
     # via requests
-django==3.2.16
+django==3.2.18
     # via -r requirements.in/base.in
 django-cache-memoize==0.1.10
     # via -r requirements.in/base.in
 idna==3.3
     # via requests
-pytz==2022.1
+pytz==2022.7.1
     # via django
 requests==2.27.1
     # via -r requirements.in/base.in

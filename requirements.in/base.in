@@ -1,4 +1,4 @@
 certifi>=2022.12.07
 django-cache-memoize
-django==3.2.16
+django==3.2.18
 requests
