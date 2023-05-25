@@ -1,5 +1,5 @@
 certifi>=2022.12.07
 django-cache-memoize
 django==3.2.19
-requests
+requests==2.31.0
 sqlparse==0.4.4
