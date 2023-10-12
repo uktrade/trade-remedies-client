@@ -3,7 +3,7 @@
 black
 flake8
 matplotlib
-pillow>=9.2.0
+pillow>=10.0.1
 pyproject-flake8
 
 git+https://github.com/uktrade/modification-pre-commit
