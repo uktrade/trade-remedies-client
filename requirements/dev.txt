@@ -26,7 +26,7 @@ cycler==0.11.0
     # via matplotlib
 distlib==0.3.6
     # via virtualenv
-django==3.2.20
+django==3.2.23
     # via -r requirements.in/../requirements/base.txt
 django-cache-memoize==0.1.10
     # via -r requirements.in/../requirements/base.txt
