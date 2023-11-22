@@ -4,5 +4,8 @@ django==3.2.23
 requests==2.31.0
 sqlparse==0.4.4
 urllib3==1.26.18
+black==22.3.0
+flake8==3.8.3
+coverage==5.2
 fitness-functions @ git+https://github.com/uktrade/fitness-functions
 pre-commit @ git+https://github.com/uktrade/modification-pre-commit
