@@ -65,18 +65,6 @@ def get_cases(self, archived=False, all_cases=False, new_cases=False, fields=Non
     return cases
 
 
-def get_submissions(self, case_id, show_global=False, fields=None):
-    """
-    Get submissions to the case.
-    If all is True, return also submissions created by TRA
-    """
-    path = (
-        f"/case/{case_id}/submissions/global/" if show_global else f"/case/{case_id}/submissions/"
-    )
-    submissions = self.get_many(path, fields=fields)
-    return submissions
-
-
 def get_submissions(self, case_id, show_global=False, fields=None, page=1, page_size=50):
     """
     Get submissions to the case with pagination support.
