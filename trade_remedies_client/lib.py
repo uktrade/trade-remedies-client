@@ -65,15 +65,30 @@ def get_cases(self, archived=False, all_cases=False, new_cases=False, fields=Non
     return cases
 
 
-def get_submissions(self, case_id, show_global=False, fields=None):
+def get_submissions(self, case_id, show_global=False, fields=None, page=1, page_size=50):
     """
-    Get submissions to the case.
-    If all is True, return also submissions created by TRA
+    Get submissions to the case with pagination support.
+
+    Args:
+        case_id: The ID of the case
+        show_global: If True, return also submissions created by TRA
+        fields: Specific fields to return
+        page: Page number (default: 1)
+        page_size: Number of submissions per page (default: 50)
+
+    Returns:
+        list: List of submission objects for the requested page
+
+    Note:
+        This method uses pagination on the server side. To get all submissions,
+        you may need to make multiple calls with different page numbers.
     """
     path = (
         f"/case/{case_id}/submissions/global/" if show_global else f"/case/{case_id}/submissions/"
     )
-    submissions = self.get_many(path, fields=fields)
+    params = {"page": page, "page_size": page_size}
+
+    submissions = self.get_many(path, params=params, fields=fields)
     return submissions
 
 
