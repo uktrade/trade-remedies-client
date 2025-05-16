@@ -952,9 +952,29 @@ def get_organisation_contacts(self, organisation_id, case_id, exclude_indirect=N
     return self.get_many(path, params)
 
 
-def get_all_users(self, groups=None, group_name=None):
+def get_all_users(self, groups=None, group_name=None, page=1, page_size=25):
+    """
+    Retrieve a list of users from the system.
+
+    This method fetches users from the API, with optional filtering by groups
+    and pagination support.
+
+    Args:
+        groups (str, optional): Filter users by comma-separated group IDs.
+        group_name (str, optional): Filter users by specific group name.
+        page (int, optional): Page number for pagination. Defaults to 1.
+        page_size (int, optional): Number of results per page. Defaults to 50.
+
+    Returns:
+        dict: API response containing list of users and pagination metadata.
+
+    Example:
+        >>> client.get_all_users(groups="1,2", page=1, page_size=10)
+        >>> client.get_all_users(group_name="admin")
+    """
     path = f"/users/{group_name}" if group_name else "/users/"
     params = {"groups": groups} if groups else {}
+    params.update({"page": page, "page_size": page_size})
     return self.get_many(path, params=params)
 
 
