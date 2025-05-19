@@ -91,16 +91,16 @@ class Client:
             return response.get("response", {}).get("results", [])
         else:
             raise Exception("Invalid response")
-        
+
     def get_many_paginated(self, path, params=None, fields=None):
         """
         Get paginated results from the API, returning both results and pagination metadata.
-        
+
         Args:
             path (str): API endpoint path
             params (dict, optional): Query parameters
             fields (str, optional): Comma-separated list of fields to return
-            
+
         Returns:
             dict: Dictionary containing:
                 - results: List of result objects
@@ -109,24 +109,21 @@ class Client:
         _url = self.get_url(path)
         response = self.get(_url, params=params, fields=fields)
         response_data = response.get("response", {})
-        
+
         if "results" not in response_data:
             raise Exception("Invalid response")
-        
+
         # Extract pagination metadata according to api implementation
         pagination_data = response_data.get("pagination", {})
-        
+
         pagination = {
             "page": pagination_data.get("page", 1),
             "page_size": pagination_data.get("page_size", len(response_data.get("results", []))),
             "total_count": pagination_data.get("total_count", 0),
-            "total_pages": pagination_data.get("total_pages", 1)
+            "total_pages": pagination_data.get("total_pages", 1),
         }
-        
-        return {
-            "results": response_data.get("results", []),
-            "pagination": pagination
-        }
+
+        return {"results": response_data.get("results", []), "pagination": pagination}
 
     def post(self, path, data=None, files=None, extra_headers=None, request_type="post"):
         _headers = self.headers(extra_headers=extra_headers)
