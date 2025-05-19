@@ -975,7 +975,7 @@ def get_all_users(self, groups=None, group_name=None, page=1, page_size=25):
     path = f"/users/{group_name}" if group_name else "/users/"
     params = {"groups": groups} if groups else {}
     params.update({"page": page, "page_size": page_size})
-    return self.get_many(path, params=params)
+    return self.get_many_paginated(path, params=params)
 
 
 def get_contact(self, contact_id):
