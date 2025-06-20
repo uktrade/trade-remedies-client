@@ -65,7 +65,7 @@ def get_cases(self, archived=False, all_cases=False, new_cases=False, fields=Non
     return cases
 
 
-def get_submissions(self, case_id, show_global=False, fields=None, page=1, page_size=50):
+def get_submissions(self, case_id, show_global=False, fields=None, page=1, page_size=25):
     """
     Get submissions to the case with pagination support.
 
@@ -87,9 +87,7 @@ def get_submissions(self, case_id, show_global=False, fields=None, page=1, page_
         f"/case/{case_id}/submissions/global/" if show_global else f"/case/{case_id}/submissions/"
     )
     params = {"page": page, "page_size": page_size}
-
-    submissions = self.get_many(path, params=params, fields=fields)
-    return submissions
+    return self.get_many_paginated(path, params=params, fields=fields)
 
 
 def get_submissions_public(
