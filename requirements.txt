@@ -8,5 +8,4 @@ black==24.3.0
 flake8==3.8.3
 coverage==5.2
 pyproject-flake8==0.0.1a3
-fitness-functions @ git+https://github.com/uktrade/fitness-functions
 pre-commit @ git+https://github.com/uktrade/modification-pre-commit
